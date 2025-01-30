@@ -3,33 +3,21 @@ import db from "../db";
 
 const root = express.Router();
 
-root.get('/', async (req, res) => {
-  //let result = await db.callProcedure(null, 'LIBRARY', 'PROCEDURE', ["P", 4, "R", 4, "M", 3, "T", 3, "R", 2]);
-  //let result = await db.query("SELECT * FROM TABLE WHERE COLUMN = ?", [1]);
-  res.send('Hello world!');
+root.get("/descTable/:table", async (req, res) => {
+  // Créer un alias pour accéder au membre
+  const sql = `CREATE ALIAS QTEMP.${req.params.table} FOR netpaisrc.qddssrc (${req.params.table})`;
+  const resAlias = await db.query(sql);
+  const result = await db.query(`SELECT * FROM QTEMP.${req.params.table}`);
+
+  if (result.length > 0) {
+    // --
+    res.json({
+      length: result.length,
+      result,
+    });
+  } else {
+    res.status(404).json({ error: "no results" });
+  }
 });
-
-// root.get('/test', async (req, res) => {
-//   let result = await db.query("SELECT * FROM SAMPLE.EMPLOYEE");
-
-//   res.json(result);
-// });
-
-// root.get('/people', async (req, res) => {
-//   let result = await db.query("call X.people()");
-
-//   res.json(result);
-// });
-
-// root.get(`/sum`, async (req, res) => {
-//   const numa = Number(req.query.numa);
-//   const numb = Number(req.query.numb);
-
-//   let result = await db.callProcedure(null, `X`, `SUMPGM`, [numa, numb, 0]);
-
-//   res.json({
-//     result: result.parameters[2]
-//   })
-// });
 
 export default root;

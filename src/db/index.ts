@@ -26,10 +26,17 @@ export default class {
 }
 
 export const connectionString = [
-  `DRIVER=IBM i Access ODBC Driver`,
-  `SYSTEM=${process.env.DB_HOST}`,
+  `DSN=DEVPAIS`,
   `UID=${process.env.DB_ID}`,
-  `Password=${process.env.DB_PASSWORD}`,
-  `Naming=1`,
-  `DBQ=,${process.env[`DB_DBQ`] ? process.env[`DB_DBQ`] : `*USRLIBL`}`,
+  `PWD=${process.env.DB_PASSWORD}`
 ].join(`;`);
+
+// Ne fonctionne pas comme ça :/
+// export const connectionString = [
+//   `DRIVER={Client Access ODBC Driver (32-bit)}`,
+//   `SYSTEM=${process.env.DB_HOST}`,
+//   `uid=${process.env.DB_ID}`,
+//   `pwd=${process.env.DB_PASSWORD}`,
+//   `Naming=1`,
+//   `DBQ=,${process.env[`DB_DBQ`] ? process.env[`DB_DBQ`] : `*USRLIBL`}`,
+// ].join(`;`);

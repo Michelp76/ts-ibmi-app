@@ -1,5 +1,7 @@
 import express from "express";
 import { json } from "body-parser";
+import dotenv from 'dotenv'; 
+dotenv.config();
 
 import db, { connectionString } from "./db";
 import root from "./routes/root";
