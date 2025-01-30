@@ -5,9 +5,7 @@ const root = express.Router();
 
 root.get("/descTable/:table", async (req, res) => {
   try {
-    // Drop existant
-    // const sqlDrop: string = `DROP ALIAS QTEMP.${req.params.table}`;
-    // const resDrop = await db.query(sqlDrop);
+    // TODO: aller piocher aussi bien dans QSQLSRC (tout autant que QDDSSRC)
 
     // Créer un alias pour accéder au membre
     const sqlCreate: string = `CREATE OR REPLACE ALIAS QTEMP.${req.params.table} FOR netpaisrc.qddssrc (${req.params.table})`;
@@ -27,6 +25,9 @@ root.get("/descTable/:table", async (req, res) => {
     }
   } catch (error) {
     console.error(error);
+    res
+      .status(404)
+      .json({ error: ` fichier inexistant : ${req.params.table}` });
   }
 });
 
