@@ -1,5 +1,4 @@
 import express from "express";
-import { StringifyOptions } from "querystring";
 import db from "../db";
 
 const root = express.Router();
