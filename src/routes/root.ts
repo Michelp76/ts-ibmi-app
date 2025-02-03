@@ -3,27 +3,58 @@ import db from "../db";
 
 const root = express.Router();
 
+// Créer un alias pour accéder au membre
+function createAlias(schema: String, rqTable: String): string {
+  return `CREATE OR REPLACE ALIAS QTEMP.${rqTable} FOR netpaisrc.${schema} (${rqTable})`;
+}
+
+// Créer un alias pour accéder au membre
+function selectAlias(rqTable: String): string {
+  return `SELECT * FROM QTEMP.${rqTable}`;
+}
+
+// Suppression nécessaire (idéalement)
+function dropAlias(rqTable: String) {
+  return `DROP ALIAS QTEMP.${rqTable}`;
+}
+
 root.get("/descTable/:table", async (req, res) => {
-  // TODO: aller piocher aussi bien dans QSQLSRC (tout autant que QDDSSRC)
-  const reqTable: String = req.params.table;
+  const reqTable: string = req.params.table;
+
+  enum FileType {
+    dds = "qddssrc",
+    ddl = "qsqlsrc",
+  }
 
   try {
-    // Créer un alias pour accéder au membre
-    const sqlCreate: string = `CREATE OR REPLACE ALIAS QTEMP.${reqTable} FOR netpaisrc.qddssrc (${reqTable})`;
-    const resAlias = await db.query(sqlCreate);
+    let dspSel: any;
 
-    // Affichage final
-    const result = await db.query(`SELECT * FROM QTEMP.${reqTable}`);
+    let key: keyof typeof FileType;
+    for (key in FileType) {
+      const sqlCreate: string = createAlias(FileType[key], reqTable);
+      await db.query(sqlCreate);
 
-    // Ménage (à faire cf. https://www.rpgpgm.com/2014/09/accessing-multiple-member-files-in-sql.html)
-    const sqlDrop: string = `DROP ALIAS QTEMP.${reqTable}`;
-    const resDrop = await db.query(sqlDrop);
+      try {
+        const sqlSel: string = selectAlias(reqTable);
+        dspSel = await db.query(sqlSel);
+      } catch {
+        // Si la requête est invalide, on atterit ici
+      } finally {
+        // Ménage
+        const sqlDrop: string = dropAlias(reqTable);
+        await db.query(sqlDrop);
 
-    if (result.length > 0) {
+        if (dspSel) {
+          break; // Sortie prématurée si dds trouvé dans qddssrc
+        }
+      }
+    }
+
+    if (dspSel.length > 0) {
       // --
       res.json({
-        length: result.length,
-        result,
+        length: dspSel.length,
+        dspSel,
       });
     } else {
       res.status(404).json({ error: "pas de description de fichier" });
