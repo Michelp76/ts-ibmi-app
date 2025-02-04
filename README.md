@@ -12,4 +12,8 @@ DB_DBQ=DEVPAIFILE
 
 3. npm run start
 
-4. Tester dans le navigateur `http://localhost:3000/descTable/contrat`
+4. Tester dans le navigateur :
+```
+Description de table (dds) -> http://localhost:3000/descTable/contrat`
+Recherche de zone -> http://localhost:3000/searchTables/bedtsupcal
+```
