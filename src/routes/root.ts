@@ -33,7 +33,7 @@ function searchSpooledFiles(
   spFileNum: number = 0,
   searchString: string = ""
 ): string {
-  let query: string = `SELECT SPOOLED_DATA FROM TABLE(SYSTOOLS.SPOOLED_FILE_DATA(JOB_NAME => '${jobName}' \
+  let query: string = `SELECT SPOOLED_DATA AS ${spoolFile} FROM TABLE(SYSTOOLS.SPOOLED_FILE_DATA(JOB_NAME => '${jobName}' \
                      , SPOOLED_FILE_NAME => '${spoolFile}' \
                     ${spFileNum > 0 ? ", SPOOLED_FILE_NUMBER => 1" : ""} )) `;
   if (searchString !== "")
@@ -125,14 +125,15 @@ root.get("/searchTables/:zone", async (req, res) => {
 
 function findInfoSpl(
   jobLogFile: string[],
+  fileType: string,
   keyWordBegin: string,
   keyWordEnd: string
 ) {
-  let foundStr: any = jobLogFile.find((e: any) => e.SPOOLED_DATA.includes(keyWordBegin)) as any;
+  let foundStr: any = jobLogFile.find((e: any) => e[fileType].includes(keyWordBegin)) as any;
   if (foundStr !== "") {
-    const beginPos: number = foundStr.SPOOLED_DATA.indexOf(keyWordBegin) + keyWordBegin.length;
-    const endPos: number = foundStr.SPOOLED_DATA.indexOf(keyWordEnd);
-    foundStr = foundStr.SPOOLED_DATA.substring(beginPos, endPos);
+    const beginPos: number = foundStr[fileType].indexOf(keyWordBegin) + keyWordBegin.length;
+    const endPos: number = foundStr[fileType].indexOf(keyWordEnd);
+    foundStr = foundStr[fileType].substring(beginPos, endPos);
   }
   return foundStr.toString().trim();
 }
@@ -148,6 +149,8 @@ root.get(
     const searchStr: string = req.params["searchStr"] ? req.params["searchStr"] : "";
     let targetProg, targetLine: string;
     // Constantes ----------------------------
+    const cFILETYPE_JOBLOG = "QPJOBLOG"
+    const cFILETYPE_DMP = "QPPGMDMP"
     const cERR_PROG_BEGIN = "unmonitored by ";
     const cERR_PROG_END = " at";
     const cERR_LINE_BEGIN = " statement";
@@ -156,19 +159,19 @@ root.get(
 
     try {
       // QPJOBLOG: synthèse des erreurs
-      const queryJobLog = await searchSpooledFiles(concatJob, "QPJOBLOG");
+      const queryJobLog = await searchSpooledFiles(concatJob, cFILETYPE_JOBLOG);
       const resJobLog: string[] = await db.query(queryJobLog) as string[];
       if (resJobLog.length > 0) {
         // Récupère la ligne dans le source en erreur
-        targetProg = findInfoSpl(resJobLog, cERR_PROG_BEGIN, cERR_PROG_END);
-        targetLine = findInfoSpl(resJobLog, cERR_LINE_BEGIN, cERR_LINE_END);
+        targetProg = findInfoSpl(resJobLog, cFILETYPE_JOBLOG, cERR_PROG_BEGIN, cERR_PROG_END);
+        targetLine = findInfoSpl(resJobLog, cFILETYPE_JOBLOG, cERR_LINE_BEGIN, cERR_LINE_END);
         // Objet final renvoyé
         resFinal.push(resJobLog);
       }
 
       // QPPGMDMP: Dump de toutes les variables
       if (searchStr !== "") {
-        const queryDump = await searchSpooledFiles(concatJob, "QPPGMDMP", 1, searchStr);
+        const queryDump = await searchSpooledFiles(concatJob, cFILETYPE_DMP, 1, searchStr);
         const resDump = await db.query(queryDump);
         if (resDump.length > 0) {
           // Objet final renvoyé          
