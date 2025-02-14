@@ -14,6 +14,7 @@ DB_DBQ=DEVPAIFILE
 
 4. Tester dans le navigateur :
 ```
-Description de table (dds) -> http://localhost:3000/descTable/contrat`
+Description de table (dds) -> http://localhost:3000/descObject/contrat`
 Recherche de zone -> http://localhost:3000/searchTables/bedtsupcal
+Recherche de logs spool -> http://localhost:3000/searchJobLog/663791/NETPAIE/VISU_BULL
 ```
