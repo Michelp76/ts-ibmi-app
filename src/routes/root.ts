@@ -1,6 +1,9 @@
 import express from "express";
 import db from "../db";
 
+// Pour lancer des CL et RPGLE : librairie iToolkit 
+// https://github.com/IBM/nodejs-itoolkit/issues/391
+
 const root = express.Router();
 
 // Créer un alias pour accéder au membre
@@ -8,9 +11,9 @@ function createAlias(schema: string, rqObject: string): string {
   return `CREATE OR REPLACE ALIAS QTEMP.${rqObject} FOR netpaisrc.${schema} (${rqObject})`;
 }
 
-// Créer un alias pour accéder au membre
+// Afficher le contenu du membre 'aliasé'
 function selectAlias(rqObject: string): string {
-  return `SELECT * FROM QTEMP.${rqObject}`;
+  return `SELECT SRCSEQ, SRCDTA FROM QTEMP.${rqObject}`;
 }
 
 // Suppression nécessaire (idéalement)
@@ -59,18 +62,22 @@ async function descObject(rqObject: string): Promise<any> {
       await db.query(sqlCreate);
 
       try {
+        // Ouverture des droits aux sources
+        // let result = await db.query("call qgpl.sosdevpai");
+        // let result = await db.callProcedure(null, "qgpl", "sosdevpai");
+
         const sqlSel: string = selectAlias(rqObject);
         dspSel = await db.query(sqlSel);
-      } catch {
+      } catch (error) {
         // Si la requête est invalide, on atterrit ici
-        console.log(`requête invalide ou objet '${rqObject}' requêté non trouvé`);
+        console.log(`requête invalide ou objet '${FileType[key]}.${rqObject}' requêté non trouvé: ${error}`);
       } finally {
         // Ménage
         const sqlDrop: string = dropAlias(rqObject);
         await db.query(sqlDrop);
 
         if (dspSel) {
-          break; // Sortie prématurée si objet
+          break; // Sortie prématurée si objet déjà trouvé
         }
       }
     }
@@ -87,10 +94,7 @@ root.get("/descObject/:table", async (req, res) => {
   const result = await descObject(reqTable);
   if (result.length > 0) {
     // --
-    res.json({
-      length: result.length,
-      result,
-    });
+    res.json({ length: result.length, result, });
   } else {
     res.status(404).json({ error: "pas de description de fichier" });
   }
@@ -113,10 +117,7 @@ root.get("/searchTables/:zone", async (req, res) => {
     }
     if (resTable.length > 0) {
       // --
-      res.json({
-        length: resTable.length,
-        resTable,
-      });
+      res.json({ length: resTable.length, resTable, });
     } else {
       res.status(404).json({ error: "pas de description de fichier" });
     }
@@ -147,7 +148,8 @@ root.get(
     const jobName: string = req.params["jobName"];
     const concatJob: string = [jobNum, jobUser, jobName].join(`/`);
     const searchStr: string = req.params["searchStr"] ? req.params["searchStr"] : "";
-    let targetProg, targetLine: string;
+    let targetProg, targetLine: string = "";
+
     // Constantes ----------------------------
     const cFILETYPE_JOBLOG = "QPJOBLOG"
     const cFILETYPE_DMP = "QPPGMDMP"
@@ -169,34 +171,43 @@ root.get(
         resFinal.push(resJobLog);
       }
 
-      // QPPGMDMP: Dump de toutes les variables
+      // QPPGMDMP: Dump de toutes les variables (/!\ long à afficher)
       if (searchStr !== "") {
         const queryDump = await searchSpooledFiles(concatJob, cFILETYPE_DMP, 1, searchStr);
         const resDump = await db.query(queryDump);
         if (resDump.length > 0) {
-          // Objet final renvoyé          
+          // Objet final renvoyé
           resFinal.push(resDump);
         }
       }
 
       // Interroge le source + montre ligne en erreur
-      const result = await descObject(targetProg);
-      if (result.length > 0) {
+      if (targetProg !== "") {
+        const resSrcFile = await descObject(targetProg);
+        if (resSrcFile.length > 0) {
+          // Objet final renvoyé        
+          resFinal.push(resSrcFile)
+        }
+      }
+      if (targetLine !== "") {
+        let oldLine, newLine: number = 0;
+        oldLine = +targetLine;
+        if (oldLine > 1000) {
+          newLine = oldLine / 100;
+        }
+        const resSrcLine = { "SRCLINE": `${newLine}` }
         // Objet final renvoyé        
-        resFinal.push(result)
+        resFinal.push(resSrcLine);
       }
 
       if (resFinal.length > 0) {
         // --
-        res.json({
-          length: resFinal.length,
-          resFinal,
-        });
+        res.json({ length: resFinal.length, resFinal, });
       } else {
         res.status(404).json({ error: `jobName '${concatJob}' non trouvé` });
       }
     } catch (error) {
-      // Si la requête est invalide, on atterit ici
+      // Si la requête est invalide, on atterrit ici
       console.log(error);
     }
   }
