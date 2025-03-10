@@ -21,13 +21,16 @@ const App = () => {
   }, [])
 
   return (
-    <div className="relative mx-auto max-w-7xl px-4 sm:static sm:px-6 lg:px-8 text-gray-600">
+    <code className="relative mx-auto max-w-4xl flex flex-col gap-3 overflow-y-auto break-all bg-base-200 p-8 text-xs text-white bg-[#4c566a]">
       {logsAS400 &&
-        logsAS400.map((log, idx) => (
-          // {Array.from(logsAS400).map((element) => (
-          <div key={idx}>{log["SRCDTA"]}</div>
-        ))}
-    </div>
+        logsAS400.map((log, index) => {
+          return (
+            <p key={index} className="">
+              {log['SRCDTA']}
+            </p>
+          )
+        })}
+    </code>
   )
 }
 
