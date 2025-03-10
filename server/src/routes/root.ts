@@ -17,7 +17,7 @@ function selectAlias(rqObject: string): string {
 }
 
 // Suppression nécessaire (idéalement)
-function dropAlias(rqObject: string) {
+function dropAlias(rqObject: string): string {
   return `DROP ALIAS QTEMP.${rqObject}`;
 }
 
@@ -41,6 +41,12 @@ function searchSpooledFiles(
                     ${spFileNum > 0 ? ", SPOOLED_FILE_NUMBER => 1" : ""} )) `;
   if (searchString !== "")
     query += `WHERE UPPER(SPOOLED_DATA) LIKE '%${searchString}%'`;
+  return query;
+}
+
+// liste exhaustive Tables 
+function listTables(): string {
+  let query: string = `SELECT TABLE_NAME AS key, TABLE_NAME AS value FROM QSYS2.SYSTABLES WHERE TABLE_SCHEMA = '${process.env.DB_DBQ}'`
   return query;
 }
 
@@ -97,6 +103,18 @@ root.get("/descObject/:table", async (req, res) => {
     res.json({ length: result.length, result, });
   } else {
     res.status(404).json({ error: "pas de description de fichier" });
+  }
+});
+
+// Définition de zones pour une table/fichier
+root.get("/listTables/", async (req, res) => {
+  const sqlList: string = listTables();
+  const result = await db.query(sqlList);
+  if (result.length > 0) {
+    // --
+    res.json({ length: result.length, result, });
+  } else {
+    res.status(404).json({ error: "pas de table(s) trouvée(s)" });
   }
 });
 

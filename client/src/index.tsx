@@ -3,7 +3,7 @@ import 'tailwindcss/tailwind.css'
 import App from 'components/App'
 
 const container = document.getElementById('root') as HTMLDivElement
-container.className = "bg-[#2e3440]"
+container.className = "bg-gray-200"
 const root = createRoot(container)
 
 root.render(<App />)

@@ -1,6 +1,7 @@
 // import Avatar from 'components/Avatar'
 // import logo from 'assets/logo.svg'
 import { useState, useEffect } from 'react'
+import SearchBox from 'components/Header'
 
 const App = () => {
   const [logsAS400, setLogsAS400] = useState([])
@@ -21,16 +22,21 @@ const App = () => {
   }, [])
 
   return (
-    <code className="relative mx-auto max-w-4xl flex flex-col gap-3 overflow-y-auto break-all bg-base-200 p-8 text-xs text-white bg-[#4c566a]">
-      {logsAS400 &&
-        logsAS400.map((log, index) => {
-          return (
-            <p key={index} className="">
-              {log['SRCDTA']}
-            </p>
-          )
-        })}
-    </code>
+    <>
+      <div>
+        <SearchBox />
+      </div>
+      <code className="relative mx-auto max-w-4xl flex flex-col gap-3 overflow-y-auto break-all bg-base-200 p-12 pt-24 text-xs shadow-lg text-gray-700 bg-gray-100">
+        {logsAS400 &&
+          logsAS400.map((log, index) => {
+            return (
+              <p key={index}>
+                {log['SRCDTA']}
+              </p>
+            )
+          })}
+      </code>
+    </>
   )
 }
 
