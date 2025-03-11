@@ -46,7 +46,7 @@ function searchSpooledFiles(
 
 // liste exhaustive Tables 
 function listTables(): string {
-  let query: string = `SELECT TABLE_NAME AS key, TABLE_NAME AS value FROM QSYS2.SYSTABLES WHERE TABLE_SCHEMA = '${process.env.DB_DBQ}'`
+  let query: string = `SELECT TABLE_NAME AS "key", TABLE_NAME AS "value" FROM QSYS2.SYSTABLES WHERE TABLE_SCHEMA = '${process.env.DB_DBQ}'`
   return query;
 }
 
@@ -98,7 +98,7 @@ root.get("/descObject/:table", async (req, res) => {
   const reqTable: string = req.params.table;
 
   const result = await descObject(reqTable);
-  if (result.length > 0) {
+  if (result && result.length > 0) {
     // --
     res.json({ length: result.length, result, });
   } else {

@@ -1,7 +1,13 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import ReactSearchBox from 'react-search-box'
 
-const SearchBox = () => {
+const SearchBox = ({
+  objToInspect,
+  setObjToInspect
+}: {
+  objToInspect: string
+  setObjToInspect: (arg: any) => void
+}) => {
   const [tablesAS400, setTablesAS400] = useState([])
   const listTables = (): any => {
     fetch('/api/listTables/', {
@@ -16,9 +22,13 @@ const SearchBox = () => {
       .then((data) => {
         console.log(data)
         setTablesAS400(data.result)
-        //return data.result
       })
   }
+
+  useEffect(() => {
+    listTables()
+    console.log('test', tablesAS400)
+  }, [])
 
   return (
     // Décalage vers le bas des éléments en dessous :
@@ -26,39 +36,24 @@ const SearchBox = () => {
     //
     // Trigger search with Enter key :
     // https://github.com/ghoshnirmalya/react-search-box/issues/106
-    <nav className="fixed top-0 left-0 w-full bg-[#4c566a]/80 py-4 shadow-xl z-50">
-      <div className="container mx-auto px-4">
+    //
+    <nav className="relative top-0 left-0 w-full bg-[#4c566a]/90 py-4 shadow-xl z-50">
+      {/* 930px en dur, c'est moche.. */}
+      <div className="relative container mx-auto px-4 w-[930px]">
         {/* <h1 className="text-xl font-bold">My Website</h1> */}
         <ReactSearchBox
           placeholder="Rechercher..."
           data={tablesAS400}
-          // data={[
-          //   {
-          //     key: 'john',
-          //     value: 'John Doe'
-          //   },
-          //   {
-          //     key: 'jane',
-          //     value: 'Jane Doe'
-          //   },
-          //   {
-          //     key: 'mary',
-          //     value: 'Mary Phillips'
-          //   },
-          //   {
-          //     key: 'robert',
-          //     value: 'Robert'
-          //   },
-          //   {
-          //     key: 'karius',
-          //     value: 'Karius'
-          //   }
-          // ]}
-          onSelect={(record: any) => console.log(record)}
-          onFocus={() => {
-            console.log('This function is called when is focussed')
+          onSelect={(record: any) => {
+            console.log(record)
+            setObjToInspect(record.item.key)
           }}
-          onChange={(value) => listTables()}
+          onFocus={() => {
+            // console.log('This function is called when is focussed')
+          }}
+          onChange={(value) => {
+            console.log(value)
+          }}
           autoFocus
         />
       </div>
