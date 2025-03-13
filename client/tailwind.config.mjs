@@ -3,7 +3,11 @@
 export default {
   content: ['./src/**/*.{mjs,js,ts,jsx,tsx}'],
   theme: {
-    extend: {}
+    extend: {
+      fontFamily: {
+        'ibm-plex-sans': ['"IBM Plex Sans"', 'cursive']
+      }
+    }
   },
   plugins: []
 }

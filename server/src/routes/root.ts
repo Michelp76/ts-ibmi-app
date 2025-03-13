@@ -8,7 +8,7 @@ const root = express.Router();
 
 // Créer un alias pour accéder au membre
 function createAlias(schema: string, rqObject: string): string {
-  return `CREATE OR REPLACE ALIAS QTEMP.${rqObject} FOR netpaisrc.${schema} (${rqObject})`;
+  return `CREATE OR REPLACE ALIAS QTEMP.${rqObject} FOR ${process.env.DB_SRC}.${schema} (${rqObject})`;
 }
 
 // Afficher le contenu du membre 'aliasé'
@@ -47,6 +47,13 @@ function searchSpooledFiles(
 // liste exhaustive Tables 
 function listTables(): string {
   let query: string = `SELECT TABLE_NAME AS "key", TABLE_NAME AS "value" FROM QSYS2.SYSTABLES WHERE TABLE_SCHEMA = '${process.env.DB_DBQ}'`
+  return query;
+}
+
+// liste exhaustive Programmes
+function listProgs(): string {
+  let query: string = `SELECT SYSTEM_TABLE_MEMBER AS "key", SYSTEM_TABLE_MEMBER AS "value" FROM QSYS2.SYSPARTITIONSTAT WHERE
+  SYSTEM_TABLE_SCHEMA = '${process.env.DB_SRC}' AND SYSTEM_TABLE_NAME = 'QRPGLESRC'`
   return query;
 }
 
@@ -107,14 +114,27 @@ root.get("/descObject/:table", async (req, res) => {
 });
 
 // Définition de zones pour une table/fichier
-root.get("/listTables/", async (req, res) => {
-  const sqlList: string = listTables();
-  const result = await db.query(sqlList);
-  if (result.length > 0) {
-    // --
-    res.json({ length: result.length, result, });
-  } else {
+root.get("/listObjectsAS400/", async (req, res) => {
+
+  // Tables / Fichiers
+  const sqlTables: string = listTables();
+  const resultTables = await db.query(sqlTables);
+  if (resultTables.length === 0) {
     res.status(404).json({ error: "pas de table(s) trouvée(s)" });
+  }
+  // Progs  
+  const sqlProgs = listProgs();
+  const resultProgs = await db.query(sqlProgs);
+  if (resultProgs.length === 0) {
+    res.status(404).json({ error: "pas de programmes(s) trouvé(s)" });
+  }
+
+  const combinedArray = [...resultTables, ...resultProgs];
+  if (combinedArray.length > 0) {
+    // --
+    res.json({ length: combinedArray.length, combinedArray, });
+  } else {
+    res.status(404).json({ error: "pas d'objets trouvé(s)" });
   }
 });
 

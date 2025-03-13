@@ -11,13 +11,13 @@
       "skipFiles": [
         "<node_internals>/**"
       ],
-      "program": "${workspaceFolder}/build/index.js",
+      "program": "${workspaceFolder}/server/build/index.js",
       "sourceMaps": true,
       "outFiles": [
-        "${workspaceFolder}/build/**/*.js"
+        "${workspaceFolder}/server/build/**/*.js"
       ],
-      "preLaunchTask": "npm: build:dev",
-      "envFile": "${workspaceFolder}/.env"
+      //"preLaunchTask": "npm: build:dev",
+      "envFile": "${workspaceFolder}/server/.env"
     }
   ]
 }

@@ -8,9 +8,9 @@ const SearchBox = ({
   objToInspect: string
   setObjToInspect: (arg: any) => void
 }) => {
-  const [tablesAS400, setTablesAS400] = useState([])
-  const listTables = (): any => {
-    fetch('/api/listTables/', {
+  const [objectsAS400, setObjectsAS400] = useState([])
+  const listObjectsAS400 = (): any => {
+    fetch('/api/listObjectsAS400/', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
@@ -20,14 +20,18 @@ const SearchBox = ({
         return res.json()
       })
       .then((data) => {
-        console.log(data)
-        setTablesAS400(data.result)
+        // Transformation éventuelle des données, pour coller au format attendu ["KEY", "VALUE" => "key", "value"]
+        // const tempData = data.result.map((line: any) => {
+        //   return { key: line.KEY, value: line.VALUE }
+        // })
+        console.log(data.combinedArray)
+        setObjectsAS400(data.combinedArray)
       })
   }
 
   useEffect(() => {
-    listTables()
-    console.log('test', tablesAS400)
+    listObjectsAS400()
+    console.log('test', objectsAS400)
   }, [])
 
   return (
@@ -37,13 +41,13 @@ const SearchBox = ({
     // Trigger search with Enter key :
     // https://github.com/ghoshnirmalya/react-search-box/issues/106
     //
-    <nav className="relative top-0 left-0 w-full bg-[#4c566a]/90 py-4 shadow-xl z-50">
+    <nav className="relative top-0 left-0 w-full bg-[#4c566a]/90 py-4 shadow-md z-50">
       {/* 930px en dur, c'est moche.. */}
       <div className="relative container mx-auto px-4 w-[930px]">
         {/* <h1 className="text-xl font-bold">My Website</h1> */}
         <ReactSearchBox
           placeholder="Rechercher..."
-          data={tablesAS400}
+          data={objectsAS400}
           onSelect={(record: any) => {
             console.log(record)
             setObjToInspect(record.item.key)
@@ -54,6 +58,7 @@ const SearchBox = ({
           onChange={(value) => {
             console.log(value)
           }}
+          inputFontSize="14px"
           autoFocus
         />
       </div>
