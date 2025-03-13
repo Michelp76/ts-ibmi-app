@@ -41,7 +41,7 @@ const SearchBox = ({
     // Trigger search with Enter key :
     // https://github.com/ghoshnirmalya/react-search-box/issues/106
     //
-    <nav className="relative top-0 left-0 w-full bg-[#4c566a]/90 py-4 shadow-md z-50">
+    <nav className="fixed top-0 left-0 w-full bg-[#4c566a]/90 py-4 shadow-md z-50 h-[5rem]">
       {/* 930px en dur, c'est moche.. */}
       <div className="relative container mx-auto px-4 w-[930px]">
         {/* <h1 className="text-xl font-bold">My Website</h1> */}
