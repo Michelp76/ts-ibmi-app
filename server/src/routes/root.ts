@@ -53,7 +53,7 @@ function listTables(): string {
 // liste exhaustive Programmes
 function listProgs(): string {
   let query: string = `SELECT SYSTEM_TABLE_MEMBER AS "key", SYSTEM_TABLE_MEMBER AS "value" FROM QSYS2.SYSPARTITIONSTAT WHERE
-  SYSTEM_TABLE_SCHEMA = '${process.env.DB_SRC}' AND SYSTEM_TABLE_NAME = 'QRPGLESRC'`
+  SYSTEM_TABLE_SCHEMA = '${process.env.DB_SRC}' AND (SYSTEM_TABLE_NAME = 'QRPGLESRC' OR SYSTEM_TABLE_NAME = 'QCLPSRC')`
   return query;
 }
 
