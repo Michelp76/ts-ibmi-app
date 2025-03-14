@@ -24,8 +24,10 @@ const SearchBox = ({
         // const tempData = data.result.map((line: any) => {
         //   return { key: line.KEY, value: line.VALUE }
         // })
-        console.log(data.combinedArray)
-        setObjectsAS400(data.combinedArray)
+        if (data && data.combinedArray.length > 0) {
+          console.log(data.combinedArray)
+          setObjectsAS400(data.combinedArray)
+        }
       })
   }
 
@@ -41,7 +43,7 @@ const SearchBox = ({
     // Trigger search with Enter key :
     // https://github.com/ghoshnirmalya/react-search-box/issues/106
     //
-    <nav className="fixed top-0 left-0 w-full bg-[#4c566a]/90 py-4 shadow-md z-50 h-[5rem]">
+    <nav className="fixed top-0 left-0 w-full bg-[#4c566a] py-4 shadow-md z-50 h-[5rem]">
       {/* 930px en dur, c'est moche.. */}
       <div className="relative container mx-auto px-4 w-[930px]">
         {/* <h1 className="text-xl font-bold">My Website</h1> */}
