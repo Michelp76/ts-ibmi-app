@@ -36,12 +36,15 @@ const App = () => {
         />
       </div>
       {objToInspect !== '' && (
-        <code className="relative mx-auto max-w-4xl flex flex-col gap-3 h-dvh overflow-y-auto break-all bg-base-200 p-12 pt-20 text-xs shadow-md text-gray-700 bg-gray-100">
-          {logsAS400 &&
-            logsAS400.map((log, index) => {
-              return <p key={index}>{log['SRCDTA']}</p>
-            })}
-        </code>
+        // balise <pre><code> pour highlight.js
+        <pre>
+          <code className="language-plaintext relative mx-auto max-w-4xl flex flex-col gap-3 h-dvh overflow-y-auto break-all bg-base-200 p-6 pt-20 text-xs shadow-md text-gray-700 bg-gray-100">
+            {logsAS400 &&
+              logsAS400.map((log, index) => {
+                return <p key={index}>{log['SRCDTA']}</p>
+              })}
+          </code>
+        </pre>
       )}
     </>
   )
