@@ -1,9 +1,7 @@
-// import Avatar from 'components/Avatar'
-// import logo from 'assets/logo.svg'
 import { useState, useEffect } from 'react'
 import SearchBox from 'components/Header'
-import 'highlight.js/styles/github.css'
-import Highlight from 'react-highlight'
+import { PrismAsyncLight as Prism } from 'react-syntax-highlighter'
+import nordStyle from 'react-syntax-highlighter/dist/esm/styles/prism/nord'
 
 const App = () => {
   // LOCAL STATES
@@ -26,8 +24,26 @@ const App = () => {
       .then((data) => {
         console.log(data)
         setLogsAS400(data.result)
+
+        resetScroll()
       })
   }, [objToInspect])
+
+  const resetScroll = () => {
+    // Reset scroll
+    const divWithScroll = document.getElementById('scroller')
+    if (divWithScroll) divWithScroll.scroll(0, 0)
+  }
+
+  const getStringFromFetch = (): string => {
+    let concatStr: string = ''
+    if (logsAS400.length > 0) {
+      logsAS400.map((log, index) => {
+        concatStr += `${log['SRCDTA']}\n`
+      })
+    }
+    return concatStr
+  }
 
   return (
     <>
@@ -37,25 +53,11 @@ const App = () => {
           setObjToInspect={setObjToInspect}
         />
       </div>
-      {objToInspect !== '' && (
-        // balise <pre><code> pour highlight.js
-        <div className="pt-20">
-
-          <Highlight className="relative mx-auto max-w-4xl flex flex-col gap-3 h-dvh overflow-y-auto break-all bg-base-200 p-7 text-xs shadow-md text-gray-700">
-            {logsAS400 &&
-              logsAS400.map((log, index) => {
-                return <p key={index}>{log['SRCDTA']}</p>
-              })}
-          </Highlight>
-
-          {/* <pre>
-            <code className="language-plaintext relative mx-auto max-w-4xl flex flex-col gap-3 h-dvh overflow-y-auto break-all bg-base-200 p-6 pt-20 text-xs shadow-md text-gray-700 bg-gray-100">
-              {logsAS400 &&
-                logsAS400.map((log, index) => {
-                  return <p key={index}>{log['SRCDTA']}</p>
-                })}
-            </code>
-          </pre> */}
+      {objToInspect !== '' && logsAS400.length > 0 && (
+        <div className="relative mx-auto max-w-4xl flex flex-col gap-3 h-dvh overflow-y-auto break-all bg-base-200 shadow-lg text-xs text-gray-700">
+          <Prism style={nordStyle} language="aql">
+            {getStringFromFetch()}
+          </Prism>
         </div>
       )}
     </>
