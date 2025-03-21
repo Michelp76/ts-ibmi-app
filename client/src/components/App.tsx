@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import SearchBox from 'components/Header'
 import { PrismAsyncLight as Prism } from 'react-syntax-highlighter'
+import virtualizedRenderer from 'react-syntax-highlighter-virtualized-renderer'
 import nordStyle from 'react-syntax-highlighter/dist/esm/styles/prism/nord'
 
 const App = () => {
@@ -54,8 +55,12 @@ const App = () => {
         />
       </div>
       {objToInspect !== '' && logsAS400.length > 0 && (
-        <div className="relative mx-auto max-w-4xl flex flex-col gap-3 h-dvh overflow-y-auto break-all bg-base-200 shadow-lg text-xs text-gray-700">
-          <Prism style={nordStyle} language="aql">
+        <div id="scroller" className="wrapperDiv relative mx-auto max-w-4xl flex flex-col h-dvh overflow-y-auto pt-[70px] shadow-lg text-xs text-gray-700">
+          <Prism
+            style={nordStyle}
+            language="aql"
+            renderer={virtualizedRenderer()}
+          >
             {getStringFromFetch()}
           </Prism>
         </div>
