@@ -13,7 +13,7 @@ function createAlias(schema: string, rqObject: string): string {
 
 // Afficher le contenu du membre 'aliasé'
 function selectAlias(rqObject: string): string {
-  return `SELECT SRCSEQ, SRCDTA FROM QTEMP.${rqObject}`;
+  return `SELECT SRCSEQ, SRCDTA AS "data" FROM QTEMP.${rqObject}`;
 }
 
 // Suppression nécessaire (idéalement)
@@ -36,7 +36,7 @@ function searchSpooledFiles(
   spFileNum: number = 0,
   searchString: string = ""
 ): string {
-  let query: string = `SELECT SPOOLED_DATA AS ${spoolFile} FROM TABLE(SYSTOOLS.SPOOLED_FILE_DATA(JOB_NAME => '${jobName}' \
+  let query: string = `SELECT SPOOLED_DATA AS "data" FROM TABLE(SYSTOOLS.SPOOLED_FILE_DATA(JOB_NAME => '${jobName}' \
                      , SPOOLED_FILE_NAME => '${spoolFile}' \
                     ${spFileNum > 0 ? ", SPOOLED_FILE_NUMBER => 1" : ""} )) `;
   if (searchString !== "")
@@ -119,17 +119,20 @@ root.get("/listObjectsAS400/", async (req, res) => {
   // Tables / Fichiers
   const sqlTables: string = listTables();
   const resultTables = await db.query(sqlTables);
-  if (resultTables.length === 0) {
-    res.status(404).json({ error: "pas de table(s) trouvée(s)" });
+  if (resultTables != undefined) {
+    if (resultTables.length === 0) {
+      res.status(404).json({ error: "pas de table(s) trouvée(s)" });
+    }
   }
   // Progs  
   const sqlProgs = listProgs();
   const resultProgs = await db.query(sqlProgs);
-  if (resultProgs.length === 0) {
-    res.status(404).json({ error: "pas de programmes(s) trouvé(s)" });
+  if (resultProgs != undefined) {
+    if (resultProgs.length === 0) {
+      res.status(404).json({ error: "pas de programmes(s) trouvé(s)" });
+    }
   }
-
-  const combinedArray = [...resultTables, ...resultProgs];
+  const combinedArray = [...resultTables as any[], ...resultProgs as any[]];
   if (combinedArray.length > 0) {
     // --
     res.json({ length: combinedArray.length, combinedArray, });
@@ -141,38 +144,39 @@ root.get("/listObjectsAS400/", async (req, res) => {
 // Recherche de zones dans tables/fichiers AS400
 root.get("/searchTables/:zone", async (req, res) => {
   const reqZone: string = req.params.zone.toUpperCase();
+  let resTable: any[] = [];
 
   // Recherche à quelle table appartient la colonne (reqZone) demandée
   const sqlQuery: string = searchSysColumn(reqZone);
   const result = await db.query(sqlQuery);
 
-  // Une fois cette table trouvée, affichage de sa/ses description(s)
-  let resTable: any[] = [];
-  if (result.length > 0) {
-    for (let i = 0; i < result.length; i++) {
-      let srcTable: string = Object.values(result[i] as string)[0];
-      resTable.push(await descObject(srcTable));
+  if (result != undefined) {
+    // Une fois cette table trouvée, affichage de sa/ses description(s)
+    if (result.length > 0) {
+      for (let i = 0; i < result.length; i++) {
+        let srcTable: string = Object.values(result[i] as string)[0];
+        resTable.push(await descObject(srcTable));
+      }
     }
-    if (resTable.length > 0) {
-      // --
-      res.json({ length: resTable.length, resTable, });
-    } else {
-      res.status(404).json({ error: "pas de description de fichier" });
-    }
+  }
+  if (resTable.length > 0) {
+    // --
+    res.json({ length: resTable.length, resTable, });
+  } else {
+    res.status(404).json({ error: "pas de description de fichier" });
   }
 });
 
 function findInfoSpl(
   jobLogFile: string[],
-  fileType: string,
   keyWordBegin: string,
   keyWordEnd: string
 ) {
-  let foundStr: any = jobLogFile.find((e: any) => e[fileType].includes(keyWordBegin)) as any;
+  let foundStr: any = jobLogFile.find((e: any) => e["data"].includes(keyWordBegin)) as any;
   if (foundStr !== "") {
-    const beginPos: number = foundStr[fileType].indexOf(keyWordBegin) + keyWordBegin.length;
-    const endPos: number = foundStr[fileType].indexOf(keyWordEnd);
-    foundStr = foundStr[fileType].substring(beginPos, endPos);
+    const beginPos: number = foundStr["data"].indexOf(keyWordBegin) + keyWordBegin.length;
+    const endPos: number = foundStr["data"].indexOf(keyWordEnd);
+    foundStr = foundStr["data"].substring(beginPos, endPos);
   }
   return foundStr.toString().trim();
 }
@@ -195,52 +199,53 @@ root.get(
     const cERR_PROG_END = " at";
     const cERR_LINE_BEGIN = " statement";
     const cERR_LINE_END = ", instruction";
-    let resFinal: object[] = [];
+    let result: object[] = [];
 
     try {
       // QPJOBLOG: synthèse des erreurs
       const queryJobLog = await searchSpooledFiles(concatJob, cFILETYPE_JOBLOG);
       const resJobLog: string[] = await db.query(queryJobLog) as string[];
       if (resJobLog.length > 0) {
-        // Récupère la ligne dans le source en erreur
-        targetProg = findInfoSpl(resJobLog, cFILETYPE_JOBLOG, cERR_PROG_BEGIN, cERR_PROG_END);
-        targetLine = findInfoSpl(resJobLog, cFILETYPE_JOBLOG, cERR_LINE_BEGIN, cERR_LINE_END);
         // Objet final renvoyé
-        resFinal.push(resJobLog);
-      }
+        result.push(resJobLog);
 
-      // QPPGMDMP: Dump de toutes les variables (/!\ long à afficher)
-      if (searchStr !== "") {
-        const queryDump = await searchSpooledFiles(concatJob, cFILETYPE_DMP, 1, searchStr);
-        const resDump = await db.query(queryDump);
-        if (resDump.length > 0) {
-          // Objet final renvoyé
-          resFinal.push(resDump);
+        // Récupère la ligne dans le source en erreur
+        targetProg = findInfoSpl(resJobLog, cERR_PROG_BEGIN, cERR_PROG_END);
+        targetLine = findInfoSpl(resJobLog, cERR_LINE_BEGIN, cERR_LINE_END);
+
+        // QPPGMDMP: Dump de toutes les variables (/!\ long à afficher)
+        if (searchStr !== "") {
+          const queryDump = await searchSpooledFiles(concatJob, cFILETYPE_DMP, 1, searchStr);
+          const resDump = await db.query(queryDump);
+          if (resDump != undefined) {
+            if (resDump.length > 0) {
+              // Objet final renvoyé
+              result.push(resDump);
+            }
+          }
         }
-      }
 
-      // Interroge le source + montre ligne en erreur
-      if (targetProg !== "") {
-        const resSrcFile = await descObject(targetProg);
-        if (resSrcFile.length > 0) {
+        // Interroge le source + montre ligne en erreur
+        if (targetProg !== "") {
+          const resSrcFile = { "SRCPROG": `${targetProg}` }
           // Objet final renvoyé        
-          resFinal.push(resSrcFile)
+          result.push(resSrcFile)
         }
-      }
-      if (targetLine !== "") {
-        let oldLine, newLine: number = 0;
-        oldLine = +targetLine;
-        if (oldLine > 1000) {
-          newLine = oldLine / 100;
-        }
-        const resSrcLine = { "SRCLINE": `${newLine}` }
-        // Objet final renvoyé        
-        resFinal.push(resSrcLine);
-      }
 
-      if (resFinal.length > 0) {
+        if (targetLine !== "") {
+          let oldLine, newLine: number = 0;
+          oldLine = +targetLine;
+          if (oldLine > 1000) {
+            newLine = oldLine / 100;
+          }
+          const resSrcLine = { "SRCLINE": `${newLine}` }
+          // Objet final renvoyé        
+          result.push(resSrcLine);
+        }
+      }
+      if (result.length > 0) {
         // --
-        res.json({ length: resFinal.length, resFinal, });
+        res.json({ length: result.length, result, });
       } else {
         res.status(404).json({ error: `jobName '${concatJob}' non trouvé` });
       }

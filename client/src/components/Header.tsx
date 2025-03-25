@@ -43,12 +43,12 @@ const SearchBox = ({
     // Trigger search with Enter key :
     // https://github.com/ghoshnirmalya/react-search-box/issues/106
     //
-    <nav className="fixed top-0 left-0 w-full bg-[#4c566a] py-4 shadow-md z-50 h-[5rem]">
+    <nav className="fixed top-0 left-0 w-full bg-[#4c566a] py-4 z-50 h-[5rem]">
       {/* 930px en dur, c'est moche.. */}
-      <div className="relative container mx-auto px-4 w-[930px]">
+      <div className="relative container mx-auto max-w-5xl">
         {/* <h1 className="text-xl font-bold">My Website</h1> */}
         <ReactSearchBox
-          placeholder="Rechercher..."
+          placeholder="Rechercher...(aussi N° de jobs ie. '794958/DEVPAIE/CALCPAIE')"
           data={objectsAS400}
           onSelect={(record: any) => {
             console.log(record)
@@ -58,9 +58,16 @@ const SearchBox = ({
             // console.log('This function is called when is focussed')
           }}
           onChange={(value) => {
-            console.log(value)
+            if (value.length >= 23) {
+              console.log(value)
+
+              // Detect job Log format & lance une recherche le cas échéant
+              const jobParts = value.split('/')
+              if (jobParts !== null && jobParts.length == 3)
+                setObjToInspect(value)
+            }
           }}
-          inputFontSize="14px"
+          inputFontSize="16px"
           autoFocus
         />
       </div>
