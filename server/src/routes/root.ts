@@ -214,16 +214,16 @@ root.get(
         targetLine = findInfoSpl(resJobLog, cERR_LINE_BEGIN, cERR_LINE_END);
 
         // QPPGMDMP: Dump de toutes les variables (/!\ long à afficher)
-        if (searchStr !== "") {
-          const queryDump = await searchSpooledFiles(concatJob, cFILETYPE_DMP, 1, searchStr);
-          const resDump = await db.query(queryDump);
-          if (resDump != undefined) {
-            if (resDump.length > 0) {
-              // Objet final renvoyé
-              result.push(resDump);
-            }
+        // if (searchStr !== "") {    // Finalement, avec le VirtualizedRenderer, le log complet s'affiche dans des temps raisonnables
+        const queryDump = await searchSpooledFiles(concatJob, cFILETYPE_DMP, 1, searchStr);
+        const resDump = await db.query(queryDump);
+        if (resDump != undefined) {
+          if (resDump.length > 0) {
+            // Objet final renvoyé
+            result.push(resDump);
           }
         }
+        // }
 
         // Interroge le source + montre ligne en erreur
         if (targetProg !== "") {
