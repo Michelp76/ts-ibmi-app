@@ -17,6 +17,9 @@ importers:
       react-dom:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
+      react-spinners:
+        specifier: ^0.15.0
+        version: 0.15.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-syntax-highlighter:
         specifier: ^15.6.1
         version: 15.6.1(react@18.3.1)
@@ -2679,6 +2682,12 @@ packages:
 
   react-search-box@3.0.0:
     resolution: {integrity: sha512-hJzrEmYJ1wBH1Zw48CV0PGFffzBY4SgMu+49Unl6ZDSTcj2xBsV13nhVcuh9cAiEZsi+6XHfenRibIL+TZ1q1g==}
+
+  react-spinners@0.15.0:
+    resolution: {integrity: sha512-ZO3/fNB9Qc+kgpG3SfdlMnvTX6LtLmTnOogb3W6sXIaU/kZ1ydEViPfZ06kSOaEsor58C/tzXw2wROGQu3X2pA==}
+    peerDependencies:
+      react: ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+      react-dom: ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
   react-syntax-highlighter-virtualized-renderer@1.1.0:
     resolution: {integrity: sha512-eJmBbBPfrj+L6iygx2M4o5O2QQAVhBl3nvxAhrzpI2pH2NtM7FjKgXW/9WuBR9J+BZhUXwNraGqxs4x+a3PhFg==}
@@ -6182,6 +6191,11 @@ snapshots:
       - '@babel/core'
       - react-is
       - release-it
+
+  react-spinners@0.15.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+    dependencies:
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
 
   react-syntax-highlighter-virtualized-renderer@1.1.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
