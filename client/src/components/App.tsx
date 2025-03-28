@@ -8,9 +8,9 @@ import BeatLoader from 'react-spinners/BeatLoader'
 const override: CSSProperties = {
   display: 'flex',
   justifyContent: 'center',
-  position: 'fixed',
-  paddingTop: '8px',
-  paddingLeft: '80px',
+  position: 'absolute',
+  top: '28px',
+  right: '480px',
   zIndex: '99'
 }
 
@@ -22,7 +22,6 @@ const App = () => {
   const [operationType, setOperationType] = useState('descObject')
   const [logsAS400, setLogsAS400] = useState([])
   let [loading, setLoading] = useState(false)
-  let [color, setColor] = useState('#ffffff')
 
   useEffect(() => {
     let operationType: string = 'descObject'
@@ -50,8 +49,9 @@ const App = () => {
         // Debug
         console.log(data.result)
 
-        if (operationType !== 'searchJobLog') setLogsAS400(data.result)
-        else {
+        if (operationType !== 'searchJobLog') {
+          setLogsAS400(data.result)
+        } else {
           // Mode: searchJobLog
           // -- Affiche dump + highlight ligne en erreur
 
@@ -86,10 +86,13 @@ const App = () => {
         concatStr += `${log['data']}\n`
       })
 
-      // Nom du programme cliquable en lien
-      if (opType === 'searchJobLog') {
-        // concatStr = concatStr.replaceAll(progError, `<a href="URL">${progError}</a>`)
-      }
+      // const leftPane = document.getElementById('leftPane')
+      // if (leftPane !== null) {
+      //   if (opType === 'searchJobLog') {
+      //     leftPane.removeClass()
+      //   } else {
+      //   }
+      // }
     }
     return concatStr
   }
@@ -100,6 +103,19 @@ const App = () => {
     if (divWithScroll) divWithScroll.scroll(0, 0)
   }
 
+  // window.addEventListener('keydown', function (e) {
+  //   if (e.keyCode === 114 || (e.ctrlKey && e.keyCode === 70)) {
+  //     if (document.getElementById('search') !== document.activeElement) {
+  //       e.preventDefault();
+  //       console.log('Search is not in focus');
+  //       document.getElementById('search')?.focus();
+  //     } else {
+  //       console.log('Default action of CtrlF');
+  //       return true;
+  //     }
+  //   }
+  // });
+
   return (
     <>
       <SearchBox
@@ -109,25 +125,45 @@ const App = () => {
       <BeatLoader
         color={'#000000'}
         loading={loading}
-        size={15}
+        size={10}
         cssOverride={override}
         aria-label="Loading Spinner"
         data-testid="loader"
       />
       {objToInspect !== '' && logsAS400 && logsAS400.length > 0 && (
-        <div
-          id="scroller"
-          className="wrapperDiv relative mx-auto max-w-5xl flex flex-col h-dvh
-                     overflow-y-auto mt-[100px] shadow-lg text-xs text-gray-700"
-        >
-          <Prism
-            style={nordStyle}
-            language={operationType === 'searchJobLog' ? 'text' : 'aql'}
-            renderer={virtualizedRenderer()}
-          >
-            {getStringFromFetch(operationType, progError, lineError)}
-          </Prism>
-        </div>
+        <>
+          {/* Grille à 2/3 colonnes :
+          https://stackoverflow.com/questions/72380072/specifying-grid-column-row-size-in-tailwindcss */}
+          <div className="grid grid-cols-[3fr,8fr,3fr] gap-x-8 h-[87svh] !mt-[100px] mx-auto px-6">
+            {/* Panneau Infos */}
+            <div
+              id="leftPane"
+              className="relative
+                         shadow-md text-xs bg-[#2E3440] text-gray-700
+                         rounded-sm invisible"
+            ></div>
+            {/* pavé code / dump */}
+            <div
+              id="scroller"
+              className="wrapperDiv relative
+              shadow-md text-xs overflow-y-auto text-gray-700"
+            >
+              <Prism
+                style={nordStyle}
+                language={operationType === 'searchJobLog' ? 'text' : 'aql'}
+                renderer={virtualizedRenderer()}
+              >
+                {getStringFromFetch(operationType, progError, lineError)}
+              </Prism>
+            </div>
+            {/* Masquée pour l'instant */}
+            <div
+              id="rightPane"
+              className="relative
+                         shadow-md text-xs bg-[#2E3440] text-gray-700 rounded-sm invisible"
+            ></div>
+          </div>
+        </>
       )}
     </>
   )
