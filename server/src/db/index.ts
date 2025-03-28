@@ -5,7 +5,11 @@ export default class {
   private static ERROR_IBMI_DISCONNECTED: string = 'Communication link failure. comm rc=10054 - CWBCO1047 - The IBM i server application  disconnected the connection';
 
   static async connect(connectionString: string) {
-    this.pool = await odbc.pool(connectionString);
+    this.pool = await odbc.pool({
+      connectionString,
+      initialSize: 5,
+      maxSize: 10,
+    });
   }
 
   /**
@@ -27,7 +31,7 @@ export default class {
         console.log(`Perte de connexion (fonction 'query' - src/index.ts): ${error}`)
         console.log(this.ERROR_IBMI_DISCONNECTED);
         // Reconnexion
-        await this.pool.connect();
+        await this.connect(connectionString);
         console.log('Running query on new pool');
         // Relance la requête initiale
         result = await this.pool.query(statement, bindingsValues);
