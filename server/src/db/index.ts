@@ -19,18 +19,18 @@ export default class {
   static async query<T>(statement: string, bindingsValues: (number | string)[] = []) {
     let result;
     try {
-      result = this.pool.query(statement, bindingsValues);
+      result = await this.pool.query(statement, bindingsValues);
     } catch (error: any) {
-      console.log(`Perte de connexion: ${error}`)
-
       // Gère l'erreur de perte de connexion "rc=10054 - CWBCO1047"
-      if (error.odbcErrors[0].message.includes(this.ERROR_IBMI_DISCONNECTED)) {
+      if (error.odbcErrors[0].code == 10054) {
+        // if (error.odbcErrors[0].message.includes(this.ERROR_IBMI_DISCONNECTED)) {
+        console.log(`Perte de connexion (fonction 'query' - src/index.ts): ${error}`)
         console.log(this.ERROR_IBMI_DISCONNECTED);
         // Reconnexion
         await this.pool.connect();
         console.log('Running query on new pool');
         // Relance la requête initiale
-        result = this.pool.query(statement, bindingsValues);
+        result = await this.pool.query(statement, bindingsValues);
       }
     } finally {
       return result;
@@ -50,5 +50,6 @@ export const connectionString = [
   `pwd=${process.env.DB_PASSWORD}`,
   `Naming=1`,
   `DBQ=,${process.env[`DB_DBQ`] ? process.env[`DB_DBQ`] : `*USRLIBL`}`,
-  `CCSID=1208`
+  `CCSID=1208`,
+  // `connectionTimeout: 1,`
 ].join(`;`);
