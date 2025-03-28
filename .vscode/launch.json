@@ -16,7 +16,7 @@
       "outFiles": [
         "${workspaceFolder}/server/build/**/*.js"
       ],
-      //"preLaunchTask": "npm: build:dev",
+      "preLaunchTask": "npm: build:dev - server",
       "envFile": "${workspaceFolder}/server/.env"
     }
   ]
