@@ -73,8 +73,10 @@ const App = () => {
 
           // Set States
           setLogsAS400(data.result[0]) // Source dans le tableau indice à 0
-          setProgError(data.result[1]['SRCPROG'])
-          setLineError(data.result[2]['SRCLINE'])
+          if (data.result[1] !== undefined)
+            setProgError(data.result[1]['SRCPROG'])
+          if (data.result[2] !== undefined)
+            setLineError(data.result[2]['SRCLINE'])
         }
 
         // States
