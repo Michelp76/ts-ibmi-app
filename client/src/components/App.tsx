@@ -1,9 +1,10 @@
 import { useState, useEffect, CSSProperties } from 'react'
 import SearchBox from 'components/Header'
 import { PrismAsyncLight as Prism } from 'react-syntax-highlighter'
-import virtualizedRenderer from 'react-syntax-highlighter-virtualized-renderer'
+import virtualizedRenderer from './react-syntax-highlighter-virtualized-renderer-esm'
 import nordStyle from 'react-syntax-highlighter/dist/esm/styles/prism/nord'
 import BeatLoader from 'react-spinners/BeatLoader'
+import SearchApi from 'js-worker-search'
 
 const override: CSSProperties = {
   display: 'flex',
@@ -17,11 +18,18 @@ const override: CSSProperties = {
 const App = () => {
   // LOCAL STATES
   const [objToInspect, setObjToInspect] = useState('')
+  const [searchTerm, setSearchTerm] = useState('')
+  const [searchCount, setSearchCount] = useState(-1)
+  const [searchLine, setSearchLine] = useState(0)
+  const [searchResults, setSearchResults] = useState<number[]>([])
   const [progError, setProgError] = useState('')
   const [lineError, setLineError] = useState('')
   const [operationType, setOperationType] = useState('descObject')
   const [logsAS400, setLogsAS400] = useState([])
   let [loading, setLoading] = useState(false)
+
+  // 'js-worker-search' instance
+  const searchApi = new SearchApi()
 
   useEffect(() => {
     let operationType: string = 'descObject'
@@ -50,6 +58,14 @@ const App = () => {
         console.log(data.result)
 
         if (operationType !== 'searchJobLog') {
+          // RAZ states
+          setSearchTerm('')
+          setSearchCount(-1)
+          setSearchLine(0)
+          setSearchResults([])
+          setProgError('')
+          setLineError('')
+
           setLogsAS400(data.result)
         } else {
           // Mode: searchJobLog
@@ -80,10 +96,18 @@ const App = () => {
   ): string => {
     // console.log(progError)
     // console.log(lineError)
+
     let concatStr: string = ''
     if (logsAS400.length > 0) {
       logsAS400.map((log, index) => {
-        concatStr += `${log['data']}\n`
+        const codeLine = log['data']
+        // Indexing
+        // Index as many objects as you want.
+        // Objects are identified by an id (the first parameter).
+        // Each Object can be indexed multiple times (once per string of related text).
+        searchApi.indexDocument(index, codeLine)
+        // Concat pour affichage du source
+        concatStr += `${codeLine}\n`
       })
 
       // const leftPane = document.getElementById('leftPane')
@@ -97,24 +121,74 @@ const App = () => {
     return concatStr
   }
 
+  const handleChange = (event: any) => {
+    setSearchTerm(event.target.value)
+  }
+
+  const searchJsWorker = async (searchTerm: string) => {
+    return searchApi.search(searchTerm)
+  }
+
+  const handleSearch = async (event: any) => {
+    event.preventDefault()
+    //
+    console.log(`Searching for ${searchTerm}...`)
+
+    let searchLocal: number[] = []
+    if (searchResults.length === 0) {
+      // Search for matching documents using the `search` method.
+      // In this case the promise will be resolved with the Array ['foo', 'bar'].
+      // This is because the word "describing" appears in both indices.
+      // const promise = searchApi.search(searchTerm).then(function (foundRes: number[]) {
+      //   searchLocal = foundRes;
+      // })
+      searchLocal = await searchJsWorker(searchTerm)
+    } else {
+      searchLocal = searchResults
+    }
+    //
+    console.log(
+      `search in document - object: ${objToInspect.trim()} - type opération: ${operationType} --> ${searchLocal}`
+    )
+
+    let lineIndex: number
+    // Increment
+    let searchIdxLocal = searchCount + 1
+
+    lineIndex = searchLocal[searchIdxLocal]
+    // Fin de recherche --> reset
+    if (searchIdxLocal >= searchLocal.length) {
+      searchIdxLocal = -1
+      lineIndex = 0
+    }
+    // Save dans state
+    setSearchResults(searchLocal)
+    setSearchCount(searchIdxLocal)
+    setSearchLine(lineIndex)
+  }
+
   const resetScroll = () => {
     // Reset scroll
     const divWithScroll = document.getElementById('scroller')
     if (divWithScroll) divWithScroll.scroll(0, 0)
   }
 
-  // window.addEventListener('keydown', function (e) {
-  //   if (e.keyCode === 114 || (e.ctrlKey && e.keyCode === 70)) {
-  //     if (document.getElementById('search') !== document.activeElement) {
-  //       e.preventDefault();
-  //       console.log('Search is not in focus');
-  //       document.getElementById('search')?.focus();
-  //     } else {
-  //       console.log('Default action of CtrlF');
-  //       return true;
-  //     }
-  //   }
-  // });
+  // Capture la combinaison de touches Ctrl + F
+  // pour forcer le focus sur le champ Recherche 'maison'
+  window.addEventListener('keydown', function (e) {
+    if (e.keyCode === 114 || (e.ctrlKey && e.keyCode === 70)) {
+      if (
+        document.getElementById('default-search') !== document.activeElement
+      ) {
+        e.preventDefault()
+        console.log('Search is not in focus')
+        document.getElementById('default-search')?.focus()
+      } else {
+        console.log('Default action of CtrlF')
+        return true
+      }
+    }
+  })
 
   return (
     <>
@@ -139,9 +213,51 @@ const App = () => {
             <div
               id="leftPane"
               className="relative
+                         py-6
                          shadow-md text-xs bg-[#2E3440] text-gray-700
-                         rounded-sm invisible"
-            ></div>
+                         rounded-sm"
+            >
+              <form className="max-w-xs mx-auto" onSubmit={handleSearch}>
+                <label className="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">
+                  Search
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                    <svg
+                      className="w-4 h-4 text-gray-500 dark:text-gray-400"
+                      aria-hidden="true"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        stroke="currentColor"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+                      />
+                    </svg>
+                  </div>
+                  <input
+                    type="search"
+                    id="default-search"
+                    value={searchTerm}
+                    onChange={handleChange}
+                    className="block w-full p-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-md bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    placeholder="Recherche..."
+                    required
+                  />
+                  <button
+                    id="searchBtn"
+                    type="submit"
+                    className="text-white absolute end-2.5 bottom-2.5 bg-[#5e81ac] hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-md text-sm px-4 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                  >
+                    Search
+                  </button>
+                </div>
+              </form>
+            </div>
             {/* pavé code / dump */}
             <div
               id="scroller"
@@ -151,7 +267,11 @@ const App = () => {
               <Prism
                 style={nordStyle}
                 language={operationType === 'searchJobLog' ? 'text' : 'aql'}
-                renderer={virtualizedRenderer()}
+                // showLineNumbers={true}
+                renderer={virtualizedRenderer({
+                  overscanRowCount: 10,
+                  scrollToIndex: searchLine
+                })}
               >
                 {getStringFromFetch(operationType, progError, lineError)}
               </Prism>
