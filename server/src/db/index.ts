@@ -1,8 +1,7 @@
-import odbc, { Result } from "odbc";
+import odbc from "odbc";
 
 export default class {
   private static pool: odbc.Pool;
-  private static ERROR_IBMI_DISCONNECTED: string = 'Communication link failure. comm rc=10054 - CWBCO1047 - The IBM i server application  disconnected the connection';
 
   static async connect(connectionString: string) {
     this.pool = await odbc.pool({
@@ -26,10 +25,9 @@ export default class {
       result = await this.pool.query(statement, bindingsValues);
     } catch (error: any) {
       // Gère l'erreur de perte de connexion "rc=10054 - CWBCO1047"
-      if (error.odbcErrors[0].code == 10054) {
+      if (error.odbcErrors[0].code == 8405) {
         // if (error.odbcErrors[0].message.includes(this.ERROR_IBMI_DISCONNECTED)) {
         console.log(`Perte de connexion (fonction 'query' - src/index.ts): ${error}`)
-        console.log(this.ERROR_IBMI_DISCONNECTED);
         // Reconnexion
         await this.connect(connectionString);
         console.log('Running query on new pool');

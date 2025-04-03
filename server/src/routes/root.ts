@@ -171,14 +171,15 @@ function findInfoSpl(
   jobLogFile: string[],
   keyWordBegin: string,
   keyWordEnd: string
-) {
+): string {
+  let strResult: string = ""
   let foundStr: any = jobLogFile.find((e: any) => e["data"].includes(keyWordBegin)) as any;
-  if (foundStr !== "") {
+  if (foundStr !== undefined && foundStr !== "") {
     const beginPos: number = foundStr["data"].indexOf(keyWordBegin) + keyWordBegin.length;
     const endPos: number = foundStr["data"].indexOf(keyWordEnd);
-    foundStr = foundStr["data"].substring(beginPos, endPos);
+    strResult = foundStr["data"].substring(beginPos, endPos).trim();
   }
-  return foundStr.toString().trim();
+  return strResult
 }
 
 // Affiche la "job log" d'un travail (depuis les "spool files")
