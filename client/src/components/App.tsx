@@ -154,7 +154,7 @@ const App = () => {
     setSearchTerm(event.target.value)
   }
 
-  const searchJsWorker = async (searchTerm: string) => {
+  const jsWorkerSearch = async (searchTerm: string) => {
     return searchApi.search(searchTerm)
   }
 
@@ -171,7 +171,9 @@ const App = () => {
       // const promise = searchApi.search(searchTerm).then(function (foundRes: number[]) {
       //   searchLocal = foundRes;
       // })
-      searchLocal = await searchJsWorker(searchTerm)
+      searchLocal = await jsWorkerSearch(searchTerm)
+      // "If search is running in a web worker, this will terminate the worker to allow for garbage collection"
+      searchApi.terminate()
     } else {
       searchLocal = searchResults
     }
