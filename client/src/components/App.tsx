@@ -1,10 +1,11 @@
-import { useState, useEffect, CSSProperties } from 'react'
+import { useState, useEffect, CSSProperties, useRef } from 'react'
 import SearchBox from 'components/Header'
 import { PrismAsyncLight as Prism } from 'react-syntax-highlighter'
 import virtualizedRenderer from './react-syntax-highlighter-virtualized-renderer-esm'
 import nordStyle from 'react-syntax-highlighter/dist/esm/styles/prism/nord'
 import BeatLoader from 'react-spinners/BeatLoader'
 import SearchApi from 'js-worker-search'
+import Mark from 'mark.js'
 
 const override: CSSProperties = {
   display: 'flex',
@@ -13,6 +14,17 @@ const override: CSSProperties = {
   top: '28px',
   right: '480px',
   zIndex: '99'
+}
+
+const useComponentDidUpdate = (callback: any, condition: any) => {
+  const isMounted = useRef(false)
+  useEffect(() => {
+    if (isMounted.current) {
+      callback()
+    } else {
+      isMounted.current = true
+    }
+  }, condition)
 }
 
 const App = () => {
@@ -91,6 +103,22 @@ const App = () => {
       })
   }, [objToInspect])
 
+  // Highlight le mot recherché
+  useComponentDidUpdate(() => {
+    if (searchLine !== 0) {
+      console.log(
+        `highlighting search word ${searchTerm} at line ${searchLine}.`
+      )
+
+      // mark.js
+      var context = document.querySelector('.codeDsp')
+      var instance = new Mark(context)
+      setTimeout(() => {
+        instance.mark(searchTerm)
+      }, 100)
+    }
+  }, [searchLine])
+
   const getStringFromFetch = (
     opType: string,
     progError: string,
@@ -102,23 +130,18 @@ const App = () => {
     let concatStr: string = ''
     if (logsAS400.length > 0) {
       logsAS400.map((log, index) => {
-        const codeLine = log['data']
-        // Indexing
-        // Index as many objects as you want.
-        // Objects are identified by an id (the first parameter).
-        // Each Object can be indexed multiple times (once per string of related text).
-        searchApi.indexDocument(index, codeLine)
+        let codeLine: string = log['data'] as string
+
+        if (searchTerm != '') {
+          // Indexing
+          // Index as many objects as you want.
+          // Objects are identified by an id (the first parameter).
+          // Each Object can be indexed multiple times (once per string of related text).
+          searchApi.indexDocument(index, codeLine)
+        }
         // Concat pour affichage du source
         concatStr += `${codeLine}\n`
       })
-
-      // const leftPane = document.getElementById('leftPane')
-      // if (leftPane !== null) {
-      //   if (opType === 'searchJobLog') {
-      //     leftPane.removeClass()
-      //   } else {
-      //   }
-      // }
     }
     return concatStr
   }
@@ -164,9 +187,9 @@ const App = () => {
       lineIndex = 0
     }
     // Save dans state
-    setSearchResults(searchLocal)
-    setSearchCount(searchIdxLocal)
-    setSearchLine(lineIndex)
+    setSearchResults(searchLocal) // tableau de résultat(s) de recherche
+    setSearchCount(searchIdxLocal) // Index actuel dans le tableau de résultat(s) de recherche
+    setSearchLine(lineIndex) // N° de ligne où se trouve le/un des résultat(s) de recherche
   }
 
   const resetScroll = () => {
@@ -269,9 +292,10 @@ const App = () => {
               <Prism
                 style={nordStyle}
                 language={operationType === 'searchJobLog' ? 'text' : 'aql'}
+                className="codeDsp"
                 // showLineNumbers={true}
                 renderer={virtualizedRenderer({
-                  overscanRowCount: 10,
+                  overscanRowCount: 10, // default
                   scrollToIndex: searchLine
                 })}
               >

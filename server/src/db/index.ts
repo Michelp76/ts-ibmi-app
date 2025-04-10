@@ -26,7 +26,6 @@ export default class {
     } catch (error: any) {
       // Gère l'erreur de perte de connexion "rc=10054 - CWBCO1047"
       if (error.odbcErrors[0].code == 8405) {
-        // if (error.odbcErrors[0].message.includes(this.ERROR_IBMI_DISCONNECTED)) {
         console.log(`Perte de connexion (fonction 'query' - src/index.ts): ${error}`)
         // Reconnexion
         await this.connect(connectionString);
