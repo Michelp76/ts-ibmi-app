@@ -165,6 +165,7 @@ const App = () => {
 
     let searchLocal: number[] = []
     if (searchTerm !== searchTermMemo) {
+      // Mémo recherche
       setSearchTermMemo(searchTerm)
 
       // Search for matching documents using the `search` method.
@@ -177,13 +178,13 @@ const App = () => {
       // "If search is running in a web worker, this will terminate the worker to allow for garbage collection"
       searchApi.terminate()
     } else {
+      // Même terme de recherche: on va récupérer le tableau de résultats de recherche
+      // et afficher l'itération suivante
       searchLocal = searchResults
     }
-    console.log(`Searching for ${searchTerm}...`)
-
     //
     console.log(
-      `search in document - object: ${objToInspect.trim()} - type opération: ${operationType} --> ${searchLocal}`
+      `Searching for ${searchTerm} in document - object: ${objToInspect.trim()} - type opération: ${operationType} --> ${searchLocal}`
     )
 
     let lineIndex: number
