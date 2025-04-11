@@ -251,7 +251,7 @@ const App = () => {
         <>
           {/* Grille à 2/3 colonnes :
           https://stackoverflow.com/questions/72380072/specifying-grid-column-row-size-in-tailwindcss */}
-          <div className="grid grid-cols-[3fr,8fr,3fr] gap-x-8 h-[87svh] !mt-[100px] mx-auto px-6">
+          <div className="grid grid-cols-[3fr,8fr,3fr] gap-x-4 h-[90svh] !mt-[80px] mx-auto px-5">
             {/* Panneau Infos */}
             <div
               id="leftPane"

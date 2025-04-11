@@ -43,9 +43,9 @@ const SearchBox = ({
     // Trigger search with Enter key :
     // https://github.com/ghoshnirmalya/react-search-box/issues/106
     //
-    <nav className="fixed top-0 left-0 w-full bg-[#2E3440] py-4 z-50 h-[5rem] drop-shadow-md">
+    <nav className="fixed top-0 left-0 w-full bg-[#2E3440] py-3 z-50 h-[4rem] drop-shadow-md">
       {/* 930px en dur, c'est moche.. */}
-      <div className="relative container mx-auto max-w-5xl">
+      <div className="relative container mx-auto w-[66rem]">
         {/* <h1 className="text-xl font-bold">My Website</h1> */}
         <ReactSearchBox
           placeholder="Rechercher...(aussi N° de jobs ie. '794958/DEVPAIE/CALCPAIE')"
