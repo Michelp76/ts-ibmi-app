@@ -43,7 +43,7 @@ const SearchBox = ({
     // Trigger search with Enter key :
     // https://github.com/ghoshnirmalya/react-search-box/issues/106
     //
-    <nav className="fixed top-0 left-0 w-full bg-[#4c566a] py-4 z-50 h-[5rem] drop-shadow-sm">
+    <nav className="fixed top-0 left-0 w-full bg-[#2E3440] py-4 z-50 h-[5rem] drop-shadow-md">
       {/* 930px en dur, c'est moche.. */}
       <div className="relative container mx-auto max-w-5xl">
         {/* <h1 className="text-xl font-bold">My Website</h1> */}
@@ -67,7 +67,7 @@ const SearchBox = ({
                 setObjToInspect(value)
             }
           }}
-          inputFontSize="16px"
+          inputFontSize="14px"
           autoFocus
         />
       </div>
