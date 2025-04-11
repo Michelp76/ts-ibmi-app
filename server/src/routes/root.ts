@@ -46,13 +46,13 @@ function searchSpooledFiles(
 
 // liste exhaustive Tables 
 function listTables(): string {
-  let query: string = `SELECT TABLE_NAME AS "key", TABLE_NAME AS "value" FROM QSYS2.SYSTABLES WHERE TABLE_SCHEMA = '${process.env.DB_DBQ}'`
+  let query: string = `SELECT TABLE_NAME AS "key", TRIM(TABLE_NAME) AS "value" FROM QSYS2.SYSTABLES WHERE TABLE_SCHEMA = '${process.env.DB_DBQ}'`
   return query;
 }
 
 // liste exhaustive Programmes
 function listProgs(): string {
-  let query: string = `SELECT SYSTEM_TABLE_MEMBER AS "key", SYSTEM_TABLE_MEMBER AS "value" FROM QSYS2.SYSPARTITIONSTAT WHERE
+  let query: string = `SELECT SYSTEM_TABLE_MEMBER AS "key", TRIM(SYSTEM_TABLE_MEMBER) AS "value" FROM QSYS2.SYSPARTITIONSTAT WHERE
   SYSTEM_TABLE_SCHEMA = '${process.env.DB_SRC}' AND (SYSTEM_TABLE_NAME = 'QRPGLESRC' OR SYSTEM_TABLE_NAME = 'QCLPSRC')`
   return query;
 }
