@@ -12,6 +12,7 @@ import SearchApi from 'js-worker-search'
 import Mark from 'mark.js'
 import { FiClipboard } from 'react-icons/fi'
 
+// "BeatLoader": loading progress
 const override: CSSProperties = {
   display: 'flex',
   justifyContent: 'center',
@@ -19,17 +20,6 @@ const override: CSSProperties = {
   top: '28px',
   right: '480px',
   zIndex: '99'
-}
-
-const useComponentDidUpdate = (callback: any, condition: any) => {
-  const isMounted = useRef(false)
-  useEffect(() => {
-    if (isMounted.current) {
-      callback()
-    } else {
-      isMounted.current = true
-    }
-  }, condition)
 }
 
 const App = () => {
@@ -46,11 +36,18 @@ const App = () => {
   const [logsAS400, setLogsAS400] = useState([])
   let [loading, setLoading] = useState(false)
 
+  // cf. type d'opérations/interrogations dans le back (root.ts)
+  enum OperationType {
+    DESCOBJET = 'descObject',
+    SEARCHTABLES = 'searchTables',
+    SEARCHJOBLOG = 'searchJobLog'
+  }
+
   // 'js-worker-search' instance
   const searchApi = new SearchApi()
 
   useEffect(() => {
-    let operationType: string = 'descObject'
+    let operationType: string = OperationType.DESCOBJET
 
     const objQuery: string = objToInspect
     if (objQuery === '') return
@@ -59,7 +56,7 @@ const App = () => {
 
     const jobParts = objQuery.split('/')
     if (jobParts !== null && jobParts.length == 3) {
-      operationType = 'searchJobLog'
+      operationType = OperationType.SEARCHJOBLOG
     }
 
     fetch(`/api/${operationType}/${objQuery}`, {
@@ -75,7 +72,7 @@ const App = () => {
         // Debug
         console.log(data.result)
 
-        if (operationType !== 'searchJobLog') {
+        if (operationType !== OperationType.SEARCHJOBLOG) {
           // RAZ states
           setSearchTerm('')
           setSearchCount(-1)
@@ -108,6 +105,17 @@ const App = () => {
         setLoading(false)
       })
   }, [objToInspect])
+
+  const useComponentDidUpdate = (callback: any, condition: any) => {
+    const isMounted = useRef(false)
+    useEffect(() => {
+      if (isMounted.current) {
+        callback()
+      } else {
+        isMounted.current = true
+      }
+    }, condition)
+  }
 
   // Highlight le mot recherché
   useComponentDidUpdate(() => {
