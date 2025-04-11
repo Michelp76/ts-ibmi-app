@@ -36,6 +36,7 @@ const App = () => {
   // LOCAL STATES
   const [objToInspect, setObjToInspect] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
+  const [searchTermMemo, setSearchTermMemo] = useState('')
   const [searchCount, setSearchCount] = useState(-1)
   const [searchLine, setSearchLine] = useState(0)
   const [searchResults, setSearchResults] = useState<number[]>([])
@@ -161,11 +162,11 @@ const App = () => {
 
   const handleSearch = async (event: any) => {
     event.preventDefault()
-    //
-    console.log(`Searching for ${searchTerm}...`)
 
     let searchLocal: number[] = []
-    if (searchResults.length === 0) {
+    if (searchTerm !== searchTermMemo) {
+      setSearchTermMemo(searchTerm)
+
       // Search for matching documents using the `search` method.
       // In this case the promise will be resolved with the Array ['foo', 'bar'].
       // This is because the word "describing" appears in both indices.
@@ -178,6 +179,8 @@ const App = () => {
     } else {
       searchLocal = searchResults
     }
+    console.log(`Searching for ${searchTerm}...`)
+
     //
     console.log(
       `search in document - object: ${objToInspect.trim()} - type opération: ${operationType} --> ${searchLocal}`
@@ -223,7 +226,9 @@ const App = () => {
   })
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(getStringFromFetch(operationType, progError, lineError))
+    navigator.clipboard.writeText(
+      getStringFromFetch(operationType, progError, lineError)
+    )
     // console.log('handleCopy')
   }
 
@@ -313,7 +318,11 @@ const App = () => {
               >
                 {getStringFromFetch(operationType, progError, lineError)}
               </Prism>
-              <FiClipboard className="copy-icon" title='Copier' onClick={handleCopy} />
+              <FiClipboard
+                className="copy-icon"
+                title="Copier"
+                onClick={handleCopy}
+              />
             </div>
             {/* Masquée pour l'instant */}
             <div
