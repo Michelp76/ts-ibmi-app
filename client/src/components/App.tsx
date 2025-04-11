@@ -297,7 +297,7 @@ const App = () => {
             >
               <Prism
                 style={nordStyle}
-                language={operationType === 'searchJobLog' ? 'text' : 'aql'}
+                language={operationType === 'searchJobLog' ? 'text' : 'abap'}
                 className="codeDsp"
                 // showLineNumbers={true}
                 renderer={virtualizedRenderer({
