@@ -10,6 +10,7 @@ import BeatLoader from 'react-spinners/BeatLoader'
 import SearchApi from 'js-worker-search'
 // @ts-ignore
 import Mark from 'mark.js'
+import { FiClipboard } from 'react-icons/fi'
 
 const override: CSSProperties = {
   display: 'flex',
@@ -221,6 +222,11 @@ const App = () => {
     }
   })
 
+  const handleCopy = () => {
+    navigator.clipboard.writeText(getStringFromFetch(operationType, progError, lineError))
+    // console.log('handleCopy')
+  }
+
   return (
     <>
       <SearchBox
@@ -307,6 +313,7 @@ const App = () => {
               >
                 {getStringFromFetch(operationType, progError, lineError)}
               </Prism>
+              <FiClipboard className="copy-icon" title='Copier' onClick={handleCopy} />
             </div>
             {/* Masquée pour l'instant */}
             <div
