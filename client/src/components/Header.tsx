@@ -48,7 +48,7 @@ const SearchBox = ({
       <div className="relative container mx-auto w-[66rem]">
         {/* <h1 className="text-xl font-bold">My Website</h1> */}
         <ReactSearchBox
-          placeholder="Rechercher...(aussi N° de jobs ie. '794958/DEVPAIE/CALCPAIE')"
+          placeholder="Rechercher..."
           data={objectsAS400}
           onSelect={(record: any) => {
             console.log(record)
