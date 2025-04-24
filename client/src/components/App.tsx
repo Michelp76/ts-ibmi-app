@@ -1,14 +1,10 @@
 import { useState, useEffect, CSSProperties, useRef } from 'react'
 import SearchBox from 'components/Header'
-// @ts-ignore
 import { PrismLight as Prism } from 'react-syntax-highlighter'
 import virtualizedRenderer from './react-syntax-highlighter-virtualized-renderer-esm'
-// @ts-ignore
 import nordStyle from 'react-syntax-highlighter/dist/esm/styles/prism/nord'
 import BeatLoader from 'react-spinners/BeatLoader'
-// @ts-ignore
 import SearchApi from 'js-worker-search'
-// @ts-ignore
 import Mark from 'mark.js'
 import { FiClipboard } from 'react-icons/fi'
 
@@ -18,7 +14,7 @@ const override: CSSProperties = {
   justifyContent: 'center',
   position: 'absolute',
   top: '28px',
-  right: '480px',
+  right: '620px',
   zIndex: '99'
 }
 

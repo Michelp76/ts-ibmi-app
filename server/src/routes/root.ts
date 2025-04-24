@@ -45,16 +45,24 @@ function searchSpooledFiles(
 }
 
 // liste exhaustive Tables 
-function listTables(): string {
-  let query: string = `SELECT TABLE_NAME AS "key", TRIM(TABLE_NAME) AS "value" FROM QSYS2.SYSTABLES WHERE TABLE_SCHEMA = '${process.env.DB_DBQ}'`
-  return query;
+function listTables(pEnv: string): string {
+  return `SELECT TABLE_NAME AS "key", TRIM(TABLE_NAME) AS "value" 
+          FROM QSYS2.SYSTABLES 
+          WHERE TABLE_SCHEMA = '${pEnv !== '' ? pEnv : process.env.DB_DBQ}'`
 }
 
 // liste exhaustive Programmes
-function listProgs(): string {
-  let query: string = `SELECT SYSTEM_TABLE_MEMBER AS "key", TRIM(SYSTEM_TABLE_MEMBER) AS "value" FROM QSYS2.SYSPARTITIONSTAT WHERE
-  SYSTEM_TABLE_SCHEMA = '${process.env.DB_SRC}' AND (SYSTEM_TABLE_NAME = 'QRPGLESRC' OR SYSTEM_TABLE_NAME = 'QCLPSRC')`
-  return query;
+function listProgs(pEnv: string): string {
+  return `SELECT SYSTEM_TABLE_MEMBER AS "key", TRIM(SYSTEM_TABLE_MEMBER) AS "value" FROM QSYS2.SYSPARTITIONSTAT WHERE
+  SYSTEM_TABLE_SCHEMA = '${pEnv !== '' ? pEnv : process.env.DB_SRC}' 
+  AND (SYSTEM_TABLE_NAME = 'QRPGLESRC' OR SYSTEM_TABLE_NAME = 'QCLPSRC')`
+}
+
+// liste sous-systèmes (NETPAISRC, DEVFLX...)
+function listLibraries(): string {
+  return `SELECT DISTINCT(TABLE_SCHEMA) AS "title" 
+          FROM QSYS2.SYSPARTITIONSTAT          
+          WHERE SYSTEM_TABLE_NAME = 'QRPGLESRC' ORDER BY TABLE_SCHEMA`
 }
 
 // Retourne une DDS (description) de fichier
@@ -113,11 +121,23 @@ root.get("/descObject/:table", async (req, res) => {
   }
 });
 
+// Sous-systèmes (NETPAISRC, DEVFLX...)
+root.get("/listLibraries/", async (req, res) => {
+  const result = await db.query(listLibraries());
+  if (result && result.length > 0) {
+    // --
+    res.json({ length: result.length, result, });
+  } else {
+    res.status(404).json({ error: "pas de librairies" });
+  }
+})
+
 // Définition de zones pour une table/fichier
-root.get("/listObjectsAS400/", async (req, res) => {
+root.get("/listObjectsAS400/:env?", async (req, res) => {
+  const reqEnv: string = req.params.env ? req.params.env : '';
 
   // Tables / Fichiers
-  const sqlTables: string = listTables();
+  const sqlTables: string = listTables(reqEnv);
   const resultTables = await db.query(sqlTables);
   if (resultTables != undefined) {
     if (resultTables.length === 0) {
@@ -125,7 +145,7 @@ root.get("/listObjectsAS400/", async (req, res) => {
     }
   }
   // Progs  
-  const sqlProgs = listProgs();
+  const sqlProgs = listProgs(reqEnv);
   const resultProgs = await db.query(sqlProgs);
   if (resultProgs != undefined) {
     if (resultProgs.length === 0) {
