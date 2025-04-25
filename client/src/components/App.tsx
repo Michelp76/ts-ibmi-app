@@ -21,6 +21,7 @@ const override: CSSProperties = {
 const App = () => {
   // LOCAL STATES
   const [objToInspect, setObjToInspect] = useState('')
+  const [targetEnv, setTargetEnv] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
   const [searchTermMemo, setSearchTermMemo] = useState('')
   const [searchCount, setSearchCount] = useState(-1)
@@ -55,7 +56,7 @@ const App = () => {
       operationType = OperationType.SEARCHJOBLOG
     }
 
-    fetch(`/api/${operationType}/${objQuery}`, {
+    fetch(`/api/${operationType}/${objQuery}/${targetEnv}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
@@ -242,6 +243,8 @@ const App = () => {
       <SearchBox
         objToInspect={objToInspect}
         setObjToInspect={setObjToInspect}
+        targetEnv={targetEnv}
+        setTargetEnv={setTargetEnv}
       />
       <BeatLoader
         color={'#000000'}

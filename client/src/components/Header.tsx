@@ -4,13 +4,16 @@ import { SplitButtonDropdown } from 'components/Dropdown'
 
 const SearchBox = ({
   objToInspect,
-  setObjToInspect
+  setObjToInspect,
+  targetEnv,
+  setTargetEnv
 }: {
   objToInspect: string
-  setObjToInspect: (arg: any) => void
+    setObjToInspect: (arg: string) => void
+    targetEnv: string
+    setTargetEnv: (arg: string) => void
 }) => {
   const [environments, setEnvironments] = useState([])
-  const [targetEnv, setTargetEnv] = useState('')
   const [objectsAS400, setObjectsAS400] = useState([])
 
   const listEnvironments = (): any => {
@@ -83,7 +86,7 @@ const SearchBox = ({
           data={objectsAS400}
           onSelect={(record: any) => {
             console.log(record)
-            setObjToInspect(record.item.key)
+            setObjToInspect(record.item.value)
           }}
           onFocus={() => {
             // console.log('This function is called when is focussed')

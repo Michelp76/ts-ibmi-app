@@ -7,8 +7,9 @@ import db from "../db";
 const root = express.Router();
 
 // Créer un alias pour accéder au membre
-function createAlias(schema: string, rqObject: string): string {
-  return `CREATE OR REPLACE ALIAS QTEMP.${rqObject} FOR ${process.env.DB_SRC}.${schema} (${rqObject})`;
+function createAlias(rqEnv: string, schema: string, rqObject: string): string {
+  return `CREATE OR REPLACE ALIAS QTEMP.${rqObject} 
+          FOR ${rqEnv !== '' ? rqEnv : process.env.DB_SRC}.${schema} (${rqObject})`;
 }
 
 // Afficher le contenu du membre 'aliasé'
@@ -66,7 +67,7 @@ function listLibraries(): string {
 }
 
 // Retourne une DDS (description) de fichier
-async function descObject(rqObject: string): Promise<any> {
+async function descObject(rqEnv: string, rqObject: string): Promise<any> {
   enum FileType {
     dds = "qddssrc",
     ddl = "qsqlsrc",
@@ -79,7 +80,7 @@ async function descObject(rqObject: string): Promise<any> {
 
     let key: keyof typeof FileType;
     for (key in FileType) {
-      const sqlCreate: string = createAlias(FileType[key], rqObject);
+      const sqlCreate: string = createAlias(rqEnv, FileType[key], rqObject);
       await db.query(sqlCreate);
 
       try {
@@ -109,10 +110,11 @@ async function descObject(rqObject: string): Promise<any> {
 }
 
 // Définition de zones pour une table/fichier
-root.get("/descObject/:table", async (req, res) => {
+root.get("/descObject/:table/:env", async (req, res) => {
   const reqTable: string = req.params.table;
+  const reqEnv: string = req.params.env;
 
-  const result = await descObject(reqTable);
+  const result = await descObject(reqEnv, reqTable);
   if (result && result.length > 0) {
     // --
     res.json({ length: result.length, result, });
@@ -162,8 +164,9 @@ root.get("/listObjectsAS400/:env?", async (req, res) => {
 });
 
 // Recherche de zones dans tables/fichiers AS400
-root.get("/searchTables/:zone", async (req, res) => {
+root.get("/searchTables/:zone/:env", async (req, res) => {
   const reqZone: string = req.params.zone.toUpperCase();
+  const reqEnv: string = req.params.env ? req.params.env : '';
   let resTable: any[] = [];
 
   // Recherche à quelle table appartient la colonne (reqZone) demandée
@@ -175,7 +178,7 @@ root.get("/searchTables/:zone", async (req, res) => {
     if (result.length > 0) {
       for (let i = 0; i < result.length; i++) {
         let srcTable: string = Object.values(result[i] as string)[0];
-        resTable.push(await descObject(srcTable));
+        resTable.push(await descObject(reqEnv, srcTable));
       }
     }
   }
