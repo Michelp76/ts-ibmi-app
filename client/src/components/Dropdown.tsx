@@ -121,7 +121,7 @@ export const SplitButtonDropdown = ({
           id="button-label"
           type="button"
           ref={buttonLabelRef}
-          className="inline-flex items-center justify-center rounded-l-md text-sm border border-[#e4e4e7] h-10 px-4 py-2 text-white"
+          className="inline-flex items-center justify-center rounded-l-md text-sm border border-[#e4e4e7] h-10 px-6 py-2 text-white"
           onClick={handlePrimaryAction}
           aria-label={`${buttonLabel} primary action`}
         >
@@ -132,7 +132,7 @@ export const SplitButtonDropdown = ({
           id="dropdown-button"
           ref={buttonRef}
           type="button"
-          className="inline-flex items-center justify-center rounded-r-md text-sm border border-l-0 border-[#e4e4e7] h-10 px-2"
+          className="inline-flex items-center justify-center rounded-r-md text-sm border border-l-0 border-[#e4e4e7] h-10 px-4 text-white"
           onClick={handleToggle}
           onKeyDown={handleKeyDown}
           aria-haspopup="true"
@@ -156,7 +156,7 @@ export const SplitButtonDropdown = ({
                 role="menuitem"
                 key={index}
                 id={`dropdown-item-${index}`}
-                className={`relative flex items-center gap-2 px-4 py-1 text-sm hover:bg-gray-100 rounded-md ${
+                className={`relative flex items-center gap-2 px-6 py-1 text-sm hover:bg-gray-100 rounded-md ${
                   focusedIndex === index ? 'bg-gray-100' : ''
                 }`}
                 tabIndex={focusedIndex === index ? 0 : -1}
