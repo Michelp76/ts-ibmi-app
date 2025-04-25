@@ -35,13 +35,10 @@ function searchSpooledFiles(
   jobName: string,
   spoolFile: string,
   spFileNum: number = 0,
-  searchString: string = ""
 ): string {
   let query: string = `SELECT SPOOLED_DATA AS "data" FROM TABLE(SYSTOOLS.SPOOLED_FILE_DATA(JOB_NAME => '${jobName}' \
                      , SPOOLED_FILE_NAME => '${spoolFile}' \
                     ${spFileNum > 0 ? ", SPOOLED_FILE_NUMBER => 1" : ""} )) `;
-  if (searchString !== "")
-    query += `WHERE UPPER(SPOOLED_DATA) LIKE '%${searchString}%'`;
   return query;
 }
 
@@ -207,13 +204,13 @@ function findInfoSpl(
 
 // Affiche la "job log" d'un travail (depuis les "spool files")
 root.get(
-  "/searchJobLog/:jobNum/:jobUser/:jobName/:searchStr?",
+  "/searchJobLog/:jobNum/:jobUser/:jobName/:env?",
   async (req, res) => {
     const jobNum: string = req.params["jobNum"];
     const jobUser: string = req.params["jobUser"];
     const jobName: string = req.params["jobName"];
     const concatJob: string = [jobNum, jobUser, jobName].join(`/`);
-    const searchStr: string = req.params["searchStr"] ? req.params["searchStr"] : "";
+    const reqEnv: string = req.params.env ? req.params.env : '';  // :env non-utilisé ici (facilité d'écriture)  
     let targetProg, targetLine: string = "";
 
     // Constantes ----------------------------
@@ -238,8 +235,7 @@ root.get(
         targetLine = findInfoSpl(resJobLog, cERR_LINE_BEGIN, cERR_LINE_END);
 
         // QPPGMDMP: Dump de toutes les variables (/!\ long à afficher)
-        // if (searchStr !== "") {    // Finalement, avec le VirtualizedRenderer, le log complet s'affiche dans des temps raisonnables
-        const queryDump = await searchSpooledFiles(concatJob, cFILETYPE_DMP, 1, searchStr);
+        const queryDump = await searchSpooledFiles(concatJob, cFILETYPE_DMP, 1);
         const resDump = await db.query(queryDump);
         if (resDump != undefined) {
           if (resDump.length > 0) {

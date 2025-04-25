@@ -92,7 +92,7 @@ const SearchBox = ({
             // console.log('This function is called when is focussed')
           }}
           onChange={(value) => {
-            if (value.length >= 23) {
+            if (value.length >= 22) {  // 597142/DEVPAIE/TRTMENS
               console.log(value)
 
               // Detect job Log format & lance une recherche le cas échéant

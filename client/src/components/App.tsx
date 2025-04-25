@@ -21,7 +21,7 @@ const override: CSSProperties = {
 const App = () => {
   // LOCAL STATES
   const [objToInspect, setObjToInspect] = useState('')
-  const [targetEnv, setTargetEnv] = useState('')
+  const [targetEnv, setTargetEnv] = useState('NETPAISRC')
   const [searchTerm, setSearchTerm] = useState('')
   const [searchTermMemo, setSearchTermMemo] = useState('')
   const [searchCount, setSearchCount] = useState(-1)
