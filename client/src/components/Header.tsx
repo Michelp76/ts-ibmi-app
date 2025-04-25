@@ -9,9 +9,9 @@ const SearchBox = ({
   setTargetEnv
 }: {
   objToInspect: string
-    setObjToInspect: (arg: string) => void
-    targetEnv: string
-    setTargetEnv: (arg: string) => void
+  setObjToInspect: (arg: string) => void
+  targetEnv: string
+  setTargetEnv: (arg: string) => void
 }) => {
   const [environments, setEnvironments] = useState([])
   const [objectsAS400, setObjectsAS400] = useState([])
@@ -69,6 +69,9 @@ const SearchBox = ({
     // Autocomplete pour liste de progs/tables
     listObjectsAS400(targetEnv)
     // console.log(targetEnv)
+
+    // RAZ 'objet à inspecter', pour forcer le hook useEffect([objToInspect] dans App.tsx)
+    setObjToInspect('')
   }, [targetEnv])
 
   return (
@@ -92,7 +95,8 @@ const SearchBox = ({
             // console.log('This function is called when is focussed')
           }}
           onChange={(value) => {
-            if (value.length >= 22) {  // 597142/DEVPAIE/TRTMENS
+            if (value.length >= 22) {
+              // 597142/DEVPAIE/TRTMENS
               console.log(value)
 
               // Detect job Log format & lance une recherche le cas échéant
