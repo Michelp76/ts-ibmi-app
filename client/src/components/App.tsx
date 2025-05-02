@@ -7,6 +7,7 @@ import BeatLoader from 'react-spinners/BeatLoader'
 import SearchApi from 'js-worker-search'
 import Mark from 'mark.js'
 import { FiClipboard } from 'react-icons/fi'
+import { OperationType } from 'utils'
 
 // "BeatLoader": loading progress
 const override: CSSProperties = {
@@ -31,32 +32,19 @@ const App = () => {
   const [lineError, setLineError] = useState('')
   const [operationType, setOperationType] = useState('descObject')
   const [logsAS400, setLogsAS400] = useState([])
+  const [srcSearchResults, setSrcSearchResults] = useState([])
   let [loading, setLoading] = useState(false)
-
-  // cf. type d'opérations/interrogations dans le back (root.ts)
-  enum OperationType {
-    DESCOBJET = 'descObject',
-    SEARCHTABLES = 'searchTables',
-    SEARCHJOBLOG = 'searchJobLog'
-  }
 
   // 'js-worker-search' instance
   const searchApi = new SearchApi()
 
   useEffect(() => {
-    let operationType: string = OperationType.DESCOBJET
+    if (objToInspect === '') return
 
-    const objQuery: string = objToInspect
-    if (objQuery === '') return
-
+    // react-spinners
     setLoading(true)
 
-    const jobParts = objQuery.split('/')
-    if (jobParts !== null && jobParts.length == 3) {
-      operationType = OperationType.SEARCHJOBLOG
-    }
-
-    fetch(`/api/${operationType}/${objQuery}/${targetEnv}`, {
+    fetch(`/api/${operationType}/${objToInspect}/${targetEnv}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
@@ -69,7 +57,7 @@ const App = () => {
         // Debug
         console.log(data.result)
 
-        if (operationType !== OperationType.SEARCHJOBLOG) {
+        if (operationType === OperationType.DESCOBJET) {
           // RAZ states
           setSearchTerm('')
           setSearchCount(-1)
@@ -77,9 +65,11 @@ const App = () => {
           setSearchResults([])
           setProgError('')
           setLineError('')
-
+          // Affiche le code dans l'éditeur Prism
           setLogsAS400(data.result)
-        } else {
+        } else if (operationType === OperationType.SEARCHPROGS) {
+          setSrcSearchResults(data.result)
+        } else if (operationType === OperationType.SEARCHJOBLOG) {
           // Mode: searchJobLog
           // -- Affiche dump + highlight ligne en erreur
 
@@ -90,9 +80,6 @@ const App = () => {
           if (data.result[2] !== undefined)
             setLineError(data.result[2]['SRCLINE'])
         }
-
-        // States
-        setOperationType(operationType)
 
         // Restore scroll
         resetScroll()
@@ -155,6 +142,43 @@ const App = () => {
       })
     }
     return concatStr
+  }
+
+  const srcSearchList = () => {
+    if (srcSearchResults != undefined && srcSearchResults.length > 0) {
+      const searchResLine = Object.entries(srcSearchResults).map(
+        ([key, value]) => (
+          <div
+            className="rounded-md bg-[#5e81ac]/40 hover:bg-[#5e81ac]/90 cursor-pointer p-3 mb-1 mx-2 px-4"
+            key={value['SRCFILE']}
+            onClick={() => {
+              // console.log(value['SRCFILE'])
+              setOperationType(OperationType.DESCOBJET)
+              setObjToInspect(value['SRCFILE'])
+            }}
+          >
+            {value['SRCFILE'] as string}
+          </div>
+        )
+      )
+      return (
+        <>
+          <div className="text-white italic w-full p-2 ml-2 !mt-[10px]">
+            {srcSearchResults.length > 0 ? (
+              <strong>Résultats de recherche pour "{objToInspect}"</strong>
+            ) : (
+              ''
+            )}
+          </div>
+          <div
+            id="searchResults"
+            className="h-[73svh] overflow-y-auto block w-full p-2 text-sm text-gray-900 rounded-md bg-[#2E3440] text-white py-2"
+          >
+            {searchResLine}
+          </div>
+        </>
+      )
+    }
   }
 
   const handleChange = (event: any) => {
@@ -241,6 +265,8 @@ const App = () => {
   return (
     <>
       <SearchBox
+        operationType={operationType}
+        setOperationType={setOperationType}
         objToInspect={objToInspect}
         setObjToInspect={setObjToInspect}
         targetEnv={targetEnv}
@@ -254,93 +280,104 @@ const App = () => {
         aria-label="Loading Spinner"
         data-testid="loader"
       />
-      {objToInspect !== '' && logsAS400 && logsAS400.length > 0 && (
-        <>
-          {/* Grille à 2/3 colonnes :
+      {objToInspect !== '' &&
+        ((logsAS400 && logsAS400.length > 0) ||
+          (srcSearchResults && srcSearchResults.length > 0)) && (
+          <>
+            {/* Grille à 2/3 colonnes :
           https://stackoverflow.com/questions/72380072/specifying-grid-column-row-size-in-tailwindcss */}
-          <div className="grid grid-cols-[3fr,8fr,3fr] gap-x-4 h-[90svh] !mt-[80px] mx-auto px-5">
-            {/* Panneau Infos */}
-            <div
-              id="leftPane"
-              className="relative
-                         py-6
+            <div className="grid grid-cols-[3fr,8fr,3fr] gap-x-4 h-[90svh] !mt-[80px] mx-auto px-5">
+              {/* Panneau gauche Infos */}
+              <div
+                id="leftPane"
+                className="relative
+                         pt-6
                          shadow-md text-xs bg-[#2E3440] text-gray-700
                          rounded-sm"
-            >
-              <form className="max-w-xs mx-auto" onSubmit={handleSearch}>
-                <label className="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">
-                  Search
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-                    <svg
-                      className="w-4 h-4 text-gray-500 dark:text-gray-400"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        stroke="currentColor"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
-                      />
-                    </svg>
-                  </div>
-                  <input
-                    type="search"
-                    id="default-search"
-                    value={searchTerm}
-                    onChange={handleChange}
-                    className="block w-full p-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-md bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                    placeholder="Recherche..."
-                    required
-                  />
-                  <button
-                    id="searchBtn"
-                    type="submit"
-                    className="text-white absolute end-2.5 bottom-2.5 bg-[#5e81ac] hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-md text-sm px-4 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                  >
-                    Search
-                  </button>
-                </div>
-              </form>
-            </div>
-            {/* pavé code / dump */}
-            <div
-              id="scroller"
-              className="wrapperDiv relative
-              shadow-md text-xs overflow-y-auto text-gray-700"
-            >
-              <Prism
-                style={nordStyle}
-                language={operationType === 'searchJobLog' ? 'text' : 'abap'}
-                className="codeDsp"
-                // showLineNumbers={true}
-                renderer={virtualizedRenderer({
-                  overscanRowCount: 10, // default
-                  scrollToIndex: searchLine
-                })}
               >
-                {getStringFromFetch(operationType, progError, lineError)}
-              </Prism>
-              <FiClipboard
-                className="copy-icon"
-                title="Copier"
-                onClick={handleCopy}
-              />
-            </div>
-            {/* Masquée pour l'instant */}
-            <div
-              id="rightPane"
-              className="relative
+                {/* Champ texte recherche */}
+                <form className="max-w-sm mx-auto p-2" onSubmit={handleSearch}>
+                  <label className="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">
+                    Search
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                      <svg
+                        className="w-4 h-4 text-gray-500 dark:text-gray-400"
+                        aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          stroke="currentColor"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+                        />
+                      </svg>
+                    </div>
+                    <input
+                      type="search"
+                      id="default-search"
+                      value={searchTerm}
+                      onChange={handleChange}
+                      className="block w-full p-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-md bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                      placeholder="Recherche..."
+                      required
+                    />
+                    <button
+                      id="searchBtn"
+                      type="submit"
+                      className="text-white absolute end-2.5 bottom-2.5 bg-[#5e81ac] hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-md text-sm px-4 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                    >
+                      Search
+                    </button>
+                  </div>
+                </form>
+                {/* Résultats de recherche (cf. fonction 'searchProgs') */}
+                {srcSearchList()}
+              </div>
+              {/* pavé code / dump */}
+              {logsAS400 && logsAS400.length > 0 && (
+                <div
+                  id="scroller"
+                  className="wrapperDiv relative
+              shadow-md text-xs overflow-y-auto text-gray-700"
+                >
+                  <Prism
+                    style={nordStyle}
+                    language={
+                      operationType === OperationType.SEARCHJOBLOG
+                        ? 'text'
+                        : 'abap'
+                    }
+                    className="codeDsp"
+                    // showLineNumbers={true}
+                    renderer={virtualizedRenderer({
+                      overscanRowCount: 10, // default
+                      scrollToIndex: searchLine
+                    })}
+                  >
+                    {getStringFromFetch(operationType, progError, lineError)}
+                  </Prism>
+                  <FiClipboard
+                    className="copy-icon"
+                    title="Copier"
+                    onClick={handleCopy}
+                  />
+                </div>
+              )}
+              {/* Masquée pour l'instant */}
+              <div
+                id="rightPane"
+                className="relative
                          shadow-md text-xs bg-[#2E3440] text-gray-700 rounded-sm invisible"
-            ></div>
-          </div>
-        </>
-      )}
+              ></div>
+            </div>
+          </>
+        )}
     </>
   )
 }

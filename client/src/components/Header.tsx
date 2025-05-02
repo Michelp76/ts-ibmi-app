@@ -1,13 +1,18 @@
 import { useEffect, useState } from 'react'
 import ReactSearchBox from 'react-search-box'
 import { SplitButtonDropdown } from 'components/Dropdown'
+import { OperationType } from 'utils'
 
 const SearchBox = ({
+  operationType,
+  setOperationType,
   objToInspect,
   setObjToInspect,
   targetEnv,
   setTargetEnv
 }: {
+  operationType: string
+  setOperationType: (arg: string) => void
   objToInspect: string
   setObjToInspect: (arg: string) => void
   targetEnv: string
@@ -15,6 +20,7 @@ const SearchBox = ({
 }) => {
   const [environments, setEnvironments] = useState([])
   const [objectsAS400, setObjectsAS400] = useState([])
+  let isItemSelected: boolean = false
 
   const listEnvironments = (): any => {
     fetch('/api/listLibraries/', {
@@ -64,7 +70,7 @@ const SearchBox = ({
     //console.log('test', objectsAS400)
   }, [])
 
-  // Changement d'environnement depuis la liste déroulante dédiée
+  // Changement d'environnement (targetEnv) depuis la liste déroulante dédiée
   useEffect(() => {
     // Autocomplete pour liste de progs/tables
     listObjectsAS400(targetEnv)
@@ -89,20 +95,32 @@ const SearchBox = ({
           data={objectsAS400}
           onSelect={(record: any) => {
             console.log(record)
+            setOperationType(OperationType.DESCOBJET)
             setObjToInspect(record.item.value)
+            // Flag à 'Oui'
+            isItemSelected = true
           }}
           onFocus={() => {
             // console.log('This function is called when is focussed')
           }}
           onChange={(value) => {
-            if (value.length >= 22) {
-              // 597142/DEVPAIE/TRTMENS
-              console.log(value)
+            console.log(value)
 
-              // Detect job Log format & lance une recherche le cas échéant
-              const jobParts = value.split('/')
-              if (jobParts !== null && jobParts.length == 3)
+            if (!isItemSelected) {
+              // Hack Pour éviter de passer, à la fois dans 'onSelect' ET dans 'onChange'
+              if (value.length >= 4 && value.length < 22) {
+                // Recherche dans les sources (rpgle, clpsrc... tables aussi ?)
+                setOperationType(OperationType.SEARCHPROGS)
                 setObjToInspect(value)
+              } else if (value.length >= 22) {
+                // ie --> 597142/DEVPAIE/TRTMENS
+                // Detect job Log format & lance une recherche le cas échéant
+                const jobParts = value.split('/')
+                if (jobParts !== null && jobParts.length == 3) {
+                  setOperationType(OperationType.SEARCHJOBLOG)
+                  setObjToInspect(value)
+                }
+              }
             }
           }}
           inputFontSize="14px"

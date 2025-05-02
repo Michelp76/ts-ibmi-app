@@ -24,7 +24,7 @@ function dropAlias(rqObject: string): string {
 
 // Recherche à quelle table appartient la colonne (reqZone) demandée
 function searchSysColumn(rqZone: string): string {
-  return `SELECT TABLE_NAME FROM QSYS2.SYSCOLUMNS \
+  return `SELECT TABLE_NAME srcFile FROM QSYS2.SYSCOLUMNS \
           WHERE TABLE_OWNER = 'GRDEVSPAF' \
           AND TABLE_SCHEMA = '${process.env.DB_DBQ}' \
           AND COLUMN_NAME = '${rqZone}'`;
@@ -53,7 +53,7 @@ function listTables(pEnv: string): string {
 function listProgs(pEnv: string): string {
   return `SELECT SYSTEM_TABLE_MEMBER AS "key", TRIM(SYSTEM_TABLE_MEMBER) AS "value" FROM QSYS2.SYSPARTITIONSTAT WHERE
   SYSTEM_TABLE_SCHEMA = '${pEnv !== '' ? pEnv : process.env.DB_SRC}' 
-  AND (SYSTEM_TABLE_NAME = 'QRPGLESRC' OR SYSTEM_TABLE_NAME = 'QCLPSRC')`
+  AND (SYSTEM_TABLE_NAME = 'QRPGLESRC' OR SYSTEM_TABLE_NAME = 'QCLPSRC' OR SYSTEM_TABLE_NAME = 'QRPGINCLU')`
 }
 
 // liste sous-systèmes (NETPAISRC, DEVFLX...)
@@ -61,6 +61,20 @@ function listLibraries(): string {
   return `SELECT DISTINCT(TABLE_SCHEMA) AS "title" 
           FROM QSYS2.SYSPARTITIONSTAT          
           WHERE SYSTEM_TABLE_NAME = 'QRPGLESRC' ORDER BY TABLE_SCHEMA`
+}
+
+// liste exhaustive Programmes
+function listSearchProgs(pEnv: string, pSearchString: string): string {
+  return `With a as (Select TRIM(a.system_table_member) srcFile,
+                            Trim(system_table_schema) concat '/' concat
+                            Trim(system_table_name) concat '(' concat
+                            Trim(system_table_member) concat ')' as ClobMbr
+                  from QSYS2.syspartitionstat a
+                  Where (system_table_Name = 'QRPGLESRC' OR system_table_Name = 'QCLPSRC' OR system_table_Name = 'QRPGINCLU')
+                  and system_table_Schema = '${pEnv !== '' ? pEnv : process.env.DB_SRC}')
+                  Select srcFile
+                  from a
+                  Where UPPER(Get_Clob_From_File(ClobMbr)) LIKE '%${pSearchString}%'`
 }
 
 // Retourne une DDS (description) de fichier
@@ -144,7 +158,7 @@ root.get("/listObjectsAS400/:env?", async (req, res) => {
     }
   }
   // Progs  
-  const sqlProgs = listProgs(reqEnv);
+  const sqlProgs: string = listProgs(reqEnv);
   const resultProgs = await db.query(sqlProgs);
   if (resultProgs != undefined) {
     if (resultProgs.length === 0) {
@@ -161,7 +175,7 @@ root.get("/listObjectsAS400/:env?", async (req, res) => {
 });
 
 // Recherche de zones dans tables/fichiers AS400
-root.get("/searchTables/:zone/:env", async (req, res) => {
+root.get("/searchTables/:zone/:env?", async (req, res) => {
   const reqZone: string = req.params.zone.toUpperCase();
   const reqEnv: string = req.params.env ? req.params.env : '';
   let resTable: any[] = [];
@@ -184,6 +198,30 @@ root.get("/searchTables/:zone/:env", async (req, res) => {
     res.json({ length: resTable.length, resTable, });
   } else {
     res.status(404).json({ error: "pas de description de fichier" });
+  }
+});
+
+// Recherche de zones dans tables/fichiers AS400
+root.get("/searchProgsAndTables/:searchstring/:env?", async (req, res) => {
+  const reqSearchstring: string = req.params.searchstring.toUpperCase();
+  const reqEnv: string = req.params.env ? req.params.env : '';
+
+  // Recherche à quelle table appartient la colonne (reqZone) demandée
+  const sqlTables: string = searchSysColumn(reqSearchstring);
+  const resultTables = await db.query(sqlTables);
+
+  // Recherche dans les programmes (CL, RPGLE...) à partir d'une chaîne
+  const sqlProgs: string = listSearchProgs(reqEnv, reqSearchstring);
+  const resultProgs = await db.query(sqlProgs);
+
+  if (resultProgs != undefined) {
+    const result = [...resultTables as any[], ...resultProgs as any[]];
+    if (result.length > 0) {
+      // --
+      res.json({ length: result.length, result, });
+    } else {
+      res.status(404).json({ error: "pas d'objets trouvé(s)" });
+    }
   }
 });
 
@@ -243,7 +281,6 @@ root.get(
             result.push(resDump);
           }
         }
-        // }
 
         // Interroge le source + montre ligne en erreur
         if (targetProg !== "") {
