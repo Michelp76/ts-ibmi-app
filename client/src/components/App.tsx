@@ -149,7 +149,7 @@ const App = () => {
       const searchResLine = Object.entries(srcSearchResults).map(
         ([key, value]) => (
           <div
-            className="rounded-md bg-[#5e81ac]/40 hover:bg-[#5e81ac]/90 cursor-pointer p-3 mb-1 mx-2 px-4"
+            className="rounded-md bg-[#5e81ac]/40 hover:bg-[#5e81ac]/90 cursor-pointer p-3 mb-1 mx-2 pl-4"
             key={value['SRCFILE']}
             onClick={() => {
               // console.log(value['SRCFILE'])
@@ -172,7 +172,7 @@ const App = () => {
           </div>
           <div
             id="searchResults"
-            className="h-[73svh] overflow-y-auto block w-full p-2 text-sm text-gray-900 rounded-md bg-[#2E3440] text-white py-2"
+            className="h-[73svh] overflow-y-auto block w-full text-sm text-gray-900 rounded-md bg-[#2E3440] text-white py-2"
           >
             {searchResLine}
           </div>
@@ -292,6 +292,7 @@ const App = () => {
                 id="leftPane"
                 className="relative
                          pt-6
+                         px-4
                          shadow-md text-xs bg-[#2E3440] text-gray-700
                          rounded-sm"
               >
