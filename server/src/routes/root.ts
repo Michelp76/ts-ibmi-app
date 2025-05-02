@@ -175,33 +175,6 @@ root.get("/listObjectsAS400/:env?", async (req, res) => {
 });
 
 // Recherche de zones dans tables/fichiers AS400
-root.get("/searchTables/:zone/:env?", async (req, res) => {
-  const reqZone: string = req.params.zone.toUpperCase();
-  const reqEnv: string = req.params.env ? req.params.env : '';
-  let resTable: any[] = [];
-
-  // Recherche à quelle table appartient la colonne (reqZone) demandée
-  const sqlQuery: string = searchSysColumn(reqZone);
-  const result = await db.query(sqlQuery);
-
-  if (result != undefined) {
-    // Une fois cette table trouvée, affichage de sa/ses description(s)
-    if (result.length > 0) {
-      for (let i = 0; i < result.length; i++) {
-        let srcTable: string = Object.values(result[i] as string)[0];
-        resTable.push(await descObject(reqEnv, srcTable));
-      }
-    }
-  }
-  if (resTable.length > 0) {
-    // --
-    res.json({ length: resTable.length, resTable, });
-  } else {
-    res.status(404).json({ error: "pas de description de fichier" });
-  }
-});
-
-// Recherche de zones dans tables/fichiers AS400
 root.get("/searchProgsAndTables/:searchstring/:env?", async (req, res) => {
   const reqSearchstring: string = req.params.searchstring.toUpperCase();
   const reqEnv: string = req.params.env ? req.params.env : '';
