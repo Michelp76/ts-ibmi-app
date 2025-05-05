@@ -10,6 +10,8 @@ const SearchBox = ({
   setObjToInspect,
   stringToSearch,
   setStringToSearch,
+  searchTerm,
+  setSearchTerm,
   targetEnv,
   setTargetEnv
 }: {
@@ -19,6 +21,8 @@ const SearchBox = ({
   setObjToInspect: (arg: string) => void
   stringToSearch: string
   setStringToSearch: (arg: string) => void
+  searchTerm: string
+  setSearchTerm: (arg: string) => void
   targetEnv: string
   setTargetEnv: (arg: string) => void
 }) => {
@@ -117,6 +121,7 @@ const SearchBox = ({
                 setOperationType(OperationType.SEARCHPROGS)
                 setObjToInspect(value)
                 setStringToSearch(value) // Affiche la chaine de recherche en cours au dessus des résultats (de recherche)
+                setSearchTerm(value)
               } else if (value.length >= 22) {
                 // ie --> 597142/DEVPAIE/TRTMENS
                 // Detect job Log format & lance une recherche le cas échéant

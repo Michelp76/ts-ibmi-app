@@ -60,7 +60,11 @@ const App = () => {
 
         if (operationType === OperationType.DESCOBJET) {
           // RAZ states
-          setSearchTerm('')
+          if (stringToSearch === '') {
+            // Réinit terme de recherche, sauf si issu de la recherche "globale" Progs cf. setStringToSearch()
+            setSearchTerm('')
+          }
+          setSearchTermMemo('')
           setSearchCount(-1)
           setSearchLine(0)
           setSearchResults([])
@@ -68,6 +72,9 @@ const App = () => {
           setLineError('')
           // Affiche le code dans l'éditeur Prism
           setLogsAS400(data.result)
+
+          // Soumet une recherche auto, si issu de la recherche "globale" Progs cf. setStringToSearch()
+          handleSearch(null)
         } else if (operationType === OperationType.SEARCHPROGS) {
           setSrcSearchResults(data.result)
         } else if (operationType === OperationType.SEARCHJOBLOG) {
@@ -150,7 +157,7 @@ const App = () => {
       const searchResLine = Object.entries(srcSearchResults).map(
         ([key, value]) => (
           <div
-            className="searchRes rounded-md bg-[#5e81ac]/40 hover:bg-[#5e81ac]/90 active:bg-[#c47457] cursor-pointer p-2 mb-1 mx-2 pl-4 max-w-xs"
+            className="searchRes rounded-md bg-[#5e81ac]/20 hover:bg-[#5e81ac]/90 active:bg-[#c47457] cursor-pointer p-2 mb-1 mx-2 pl-4 max-w-xs"
             key={value['SRCFILE']}
             onClick={(e) => {
               // console.log(value['SRCFILE'])
@@ -161,9 +168,13 @@ const App = () => {
               let elList: NodeListOf<HTMLElement> =
                 document.querySelectorAll('.searchRes')
               const targetSrc = e.currentTarget.innerText
-              elList.forEach((el) => (el.style.backgroundColor = ''))
+              elList.forEach((el) => {
+                el.style.backgroundColor = ''
+                el.style.color = ''
+              })
               // le source choisi/cliqué pour affichage reste en surbrillance
               e.currentTarget.style.backgroundColor = '#d08770'
+              e.currentTarget.style.color = '#222'
             }}
           >
             {value['SRCFILE'] as string}
@@ -172,9 +183,12 @@ const App = () => {
       )
       return (
         <>
-          <div className="text-white italic w-md p-2 mb-[6px] !mt-[10px]">
+          <div className="text-white text-sm italic w-md p-2 mb-[6px] !mt-[10px]">
             {srcSearchResults.length > 0 ? (
-              <strong>Résultats de recherche pour "{stringToSearch}"</strong>
+              <strong>
+                Résultats de recherche pour "{stringToSearch}" dans "{targetEnv}
+                "
+              </strong>
             ) : (
               ''
             )}
@@ -199,7 +213,7 @@ const App = () => {
   }
 
   const handleSearch = async (event: any) => {
-    event.preventDefault()
+    if (event != undefined) event.preventDefault()
 
     let searchLocal: number[] = []
     if (searchTerm !== searchTermMemo) {
@@ -280,6 +294,8 @@ const App = () => {
         setObjToInspect={setObjToInspect}
         stringToSearch={stringToSearch}
         setStringToSearch={setStringToSearch}
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
         targetEnv={targetEnv}
         setTargetEnv={setTargetEnv}
       />

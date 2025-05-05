@@ -23,10 +23,10 @@ function dropAlias(rqObject: string): string {
 }
 
 // Recherche à quelle table appartient la colonne (reqZone) demandée
-function searchSysColumn(rqZone: string): string {
+function searchSysColumn(pEnv: string, rqZone: string): string {
   return `SELECT TABLE_NAME srcFile FROM QSYS2.SYSCOLUMNS \
           WHERE TABLE_OWNER = 'GRDEVSPAF' \
-          AND TABLE_SCHEMA = '${process.env.DB_DBQ}' \
+          AND TABLE_SCHEMA = '${pEnv !== '' ? pEnv : process.env.DB_DBQ}' \
           AND COLUMN_NAME = '${rqZone}'`;
 }
 
@@ -177,10 +177,17 @@ root.get("/listObjectsAS400/:env?", async (req, res) => {
 // Recherche de zones dans tables/fichiers AS400
 root.get("/searchProgsAndTables/:searchstring/:env?", async (req, res) => {
   const reqSearchstring: string = req.params.searchstring.toUpperCase();
-  const reqEnv: string = req.params.env ? req.params.env : '';
+  let reqEnv: string = req.params.env ? req.params.env : '';
+  let reqEnvSwp: string = reqEnv
+
+  if (process.env.DB_SWP_SRC_FILE === "1") {
+    if (reqEnv.endsWith('SRC')) {
+      reqEnvSwp = reqEnv.replace('SRC', 'FILE')
+    }
+  }
 
   // Recherche à quelle table appartient la colonne (reqZone) demandée
-  const sqlTables: string = searchSysColumn(reqSearchstring);
+  const sqlTables: string = searchSysColumn(reqEnvSwp, reqSearchstring);
   const resultTables = await db.query(sqlTables);
 
   // Recherche dans les programmes (CL, RPGLE...) à partir d'une chaîne
