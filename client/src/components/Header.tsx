@@ -8,6 +8,8 @@ const SearchBox = ({
   setOperationType,
   objToInspect,
   setObjToInspect,
+  stringToSearch,
+  setStringToSearch,
   targetEnv,
   setTargetEnv
 }: {
@@ -15,6 +17,8 @@ const SearchBox = ({
   setOperationType: (arg: string) => void
   objToInspect: string
   setObjToInspect: (arg: string) => void
+  stringToSearch: string
+  setStringToSearch: (arg: string) => void
   targetEnv: string
   setTargetEnv: (arg: string) => void
 }) => {
@@ -112,6 +116,7 @@ const SearchBox = ({
                 // Recherche dans les sources (rpgle, clpsrc... tables aussi ?)
                 setOperationType(OperationType.SEARCHPROGS)
                 setObjToInspect(value)
+                setStringToSearch(value) // Affiche la chaine de recherche en cours au dessus des résultats (de recherche)
               } else if (value.length >= 22) {
                 // ie --> 597142/DEVPAIE/TRTMENS
                 // Detect job Log format & lance une recherche le cas échéant

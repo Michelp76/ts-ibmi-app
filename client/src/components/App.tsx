@@ -22,6 +22,7 @@ const override: CSSProperties = {
 const App = () => {
   // LOCAL STATES
   const [objToInspect, setObjToInspect] = useState('')
+  const [stringToSearch, setStringToSearch] = useState('')
   const [targetEnv, setTargetEnv] = useState('NETPAISRC')
   const [searchTerm, setSearchTerm] = useState('')
   const [searchTermMemo, setSearchTermMemo] = useState('')
@@ -149,12 +150,20 @@ const App = () => {
       const searchResLine = Object.entries(srcSearchResults).map(
         ([key, value]) => (
           <div
-            className="rounded-md bg-[#5e81ac]/40 hover:bg-[#5e81ac]/90 cursor-pointer p-3 mb-1 mx-2 pl-4"
+            className="searchRes rounded-md bg-[#5e81ac]/40 hover:bg-[#5e81ac]/90 active:bg-[#c47457] cursor-pointer p-2 mb-1 mx-2 pl-4 max-w-xs"
             key={value['SRCFILE']}
-            onClick={() => {
+            onClick={(e) => {
               // console.log(value['SRCFILE'])
               setOperationType(OperationType.DESCOBJET)
               setObjToInspect(value['SRCFILE'])
+
+              // Reset clicked color
+              let elList: NodeListOf<HTMLElement> =
+                document.querySelectorAll('.searchRes')
+              const targetSrc = e.currentTarget.innerText
+              elList.forEach((el) => (el.style.backgroundColor = ''))
+              // le source choisi/cliqué pour affichage reste en surbrillance
+              e.currentTarget.style.backgroundColor = '#d08770'
             }}
           >
             {value['SRCFILE'] as string}
@@ -163,16 +172,16 @@ const App = () => {
       )
       return (
         <>
-          <div className="text-white italic w-full p-2 ml-2 !mt-[10px]">
+          <div className="text-white italic w-md p-2 mb-[6px] !mt-[10px]">
             {srcSearchResults.length > 0 ? (
-              <strong>Résultats de recherche pour "{objToInspect}"</strong>
+              <strong>Résultats de recherche pour "{stringToSearch}"</strong>
             ) : (
               ''
             )}
           </div>
           <div
             id="searchResults"
-            className="h-[73svh] overflow-y-auto block w-full text-sm text-gray-900 rounded-md bg-[#2E3440] text-white py-2"
+            className="h-[73svh] overflow-y-auto block w-sm max-w-sm text-sm text-gray-900 rounded-md bg-[#2E3440] text-white py-2"
           >
             {searchResLine}
           </div>
@@ -269,6 +278,8 @@ const App = () => {
         setOperationType={setOperationType}
         objToInspect={objToInspect}
         setObjToInspect={setObjToInspect}
+        stringToSearch={stringToSearch}
+        setStringToSearch={setStringToSearch}
         targetEnv={targetEnv}
         setTargetEnv={setTargetEnv}
       />
