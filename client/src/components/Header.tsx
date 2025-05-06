@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import ReactSearchBox from 'react-search-box'
 import { SplitButtonDropdown } from 'components/Dropdown'
-import { OperationType } from 'utils'
+import { OperationType, searchType } from 'utils'
 
 const SearchBox = ({
   operationType,
@@ -13,7 +13,9 @@ const SearchBox = ({
   searchTerm,
   setSearchTerm,
   targetEnv,
-  setTargetEnv
+  setTargetEnv,
+  modeRecherche,
+  setModeRecherche
 }: {
   operationType: string
   setOperationType: (arg: string) => void
@@ -25,6 +27,8 @@ const SearchBox = ({
   setSearchTerm: (arg: string) => void
   targetEnv: string
   setTargetEnv: (arg: string) => void
+  modeRecherche: string
+  setModeRecherche: (arg: string) => void
 }) => {
   const [environments, setEnvironments] = useState([])
   const [objectsAS400, setObjectsAS400] = useState([])
@@ -88,6 +92,15 @@ const SearchBox = ({
     setObjToInspect('')
   }, [targetEnv])
 
+  useEffect(() => {
+    // Pas besoin d'autocomplete en mode recherche dans les sources
+    if (modeRecherche === searchType.SEARCHSOURCE) {
+      setObjectsAS400([])
+    } else {
+      listObjectsAS400(targetEnv)
+    }
+  }, [modeRecherche])
+
   return (
     // Décalage vers le bas des éléments en dessous :
     // https://github.com/ghoshnirmalya/react-search-box/issues/183
@@ -97,7 +110,7 @@ const SearchBox = ({
     //
     <nav className="fixed top-0 left-0 w-full bg-[#2E3440] py-3 z-50 h-[4rem] drop-shadow-md">
       {/* 930px en dur, c'est moche.. */}
-      <div className="relative container mx-auto w-[66rem] grid grid-cols-[1fr,9.3rem] gap-x-4">
+      <div className="relative container mx-auto w-[66rem] grid grid-cols-[1fr,11.0rem,11.0rem] gap-x-4">
         <ReactSearchBox
           placeholder="Rechercher..."
           data={objectsAS400}
@@ -117,11 +130,13 @@ const SearchBox = ({
             if (!isItemSelected) {
               // Hack Pour éviter de passer, à la fois dans 'onSelect' ET dans 'onChange'
               if (value.length >= 4 && value.length < 22) {
-                // Recherche dans les sources (rpgle, clpsrc... tables aussi ?)
-                setOperationType(OperationType.SEARCHPROGS)
-                setObjToInspect(value)
-                setStringToSearch(value) // Affiche la chaine de recherche en cours au dessus des résultats (de recherche)
-                setSearchTerm(value)
+                if (modeRecherche === searchType.SEARCHSOURCE) {
+                  // Recherche dans les sources (rpgle, clpsrc... tables aussi ?)
+                  setOperationType(OperationType.SEARCHPROGS)
+                  setObjToInspect(value)
+                  setStringToSearch(value) // Affiche la chaine de recherche en cours au dessus des résultats (de recherche)
+                  setSearchTerm(value)
+                }
               } else if (value.length >= 22) {
                 // ie --> 597142/DEVPAIE/TRTMENS
                 // Detect job Log format & lance une recherche le cas échéant
@@ -140,8 +155,22 @@ const SearchBox = ({
         <SplitButtonDropdown
           buttonLabel="Bibliothèque"
           items={environments}
-          targetEnv={targetEnv}
-          setTargetEnv={setTargetEnv}
+          currentState={targetEnv}
+          setCurrentState={setTargetEnv}
+        />
+        {/* Recherche par nom de programme ou recherche dans le source de(s) programmes */}
+        <SplitButtonDropdown
+          buttonLabel={modeRecherche}
+          items={[
+            {
+              title: 'auto-complete'
+            },
+            {
+              title: 'search-in-source'
+            }
+          ]}
+          currentState={modeRecherche}
+          setCurrentState={setModeRecherche}
         />
       </div>
     </nav>

@@ -10,16 +10,16 @@ interface SplitButtonDropdownProps {
     icon?: JSX.Element
     action?: () => void
   }[]
-  targetEnv: string
-  setTargetEnv: (arg: string) => void
+  currentState: string
+  setCurrentState: (arg: string) => void
 }
 
 export const SplitButtonDropdown = ({
   buttonLabel,
   defaultAction,
   items,
-  targetEnv,
-  setTargetEnv
+  currentState,
+  setCurrentState
 }: SplitButtonDropdownProps) => {
   const [open, setOpen] = useState(false)
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null)
@@ -115,7 +115,7 @@ export const SplitButtonDropdown = ({
   }
 
   return (
-    <div className="relative" ref={menuRef}>
+    <div className="relative w-96" ref={menuRef}>
       <div className="inline-flex">
         {/* Primary Button */}
         <button
@@ -162,12 +162,12 @@ export const SplitButtonDropdown = ({
                 }`}
                 tabIndex={focusedIndex === index ? 0 : -1}
                 onClick={() => {
-                  const selEnv = item.title
-                  const labelBtn = document.getElementById('button-label')
-                  if (labelBtn) labelBtn.innerText = selEnv
+                  const currentSel = item.title
+                  if (buttonLabelRef.current !== null)
+                    buttonLabelRef.current.innerText = currentSel
 
                   // Prop mise à jour en fonction de l'environnement
-                  setTargetEnv(selEnv)
+                  setCurrentState(currentSel)
                 }}
                 onKeyDown={(event) => handleItemKeyDown(event, index)}
               >

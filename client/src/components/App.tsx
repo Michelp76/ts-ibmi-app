@@ -7,15 +7,15 @@ import BeatLoader from 'react-spinners/BeatLoader'
 import SearchApi from 'js-worker-search'
 import Mark from 'mark.js'
 import { FiClipboard } from 'react-icons/fi'
-import { OperationType } from 'utils'
+import { OperationType, searchType } from 'utils'
 
 // "BeatLoader": loading progress
 const override: CSSProperties = {
   display: 'flex',
   justifyContent: 'center',
   position: 'absolute',
-  top: '28px',
-  right: '620px',
+  top: '26px',
+  right: '840px',
   zIndex: '99'
 }
 
@@ -24,6 +24,7 @@ const App = () => {
   const [objToInspect, setObjToInspect] = useState('')
   const [stringToSearch, setStringToSearch] = useState('')
   const [targetEnv, setTargetEnv] = useState('NETPAISRC')
+  const [modeRecherche, setModeRecherche] = useState('auto-complete')
   const [searchTerm, setSearchTerm] = useState('')
   const [searchTermMemo, setSearchTermMemo] = useState('')
   const [searchCount, setSearchCount] = useState(-1)
@@ -72,7 +73,7 @@ const App = () => {
           setProgError('')
           setLineError('')
 
-          // Force purge de l'état : utile ?
+          // Force purge de l'état : utile ou placebo ?
           setLogsAS400([])
 
           // Affiche le code dans l'éditeur Prism
@@ -310,6 +311,8 @@ const App = () => {
         setSearchTerm={setSearchTerm}
         targetEnv={targetEnv}
         setTargetEnv={setTargetEnv}
+        modeRecherche={modeRecherche}
+        setModeRecherche={setModeRecherche}
       />
       <BeatLoader
         color={'#000000'}
@@ -364,7 +367,7 @@ const App = () => {
                       value={searchTerm}
                       onChange={handleChange}
                       className="block w-80 p-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-md bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                      placeholder="Recherche..."
+                      placeholder="Recherche (document actif)..."
                       required
                     />
                     <button
@@ -376,8 +379,10 @@ const App = () => {
                     </button>
                   </div>
                 </form>
-                {/* Résultats de recherche (cf. fonction 'searchProgs') */}
-                {srcSearchList()}
+              {/* Résultats de recherche (cf. fonction 'searchProgs') */}
+              {modeRecherche === searchType.SEARCHSOURCE && (
+                 srcSearchList()
+              )}
               </div>
               {/* pavé code / dump */}
               {logsAS400 && logsAS400.length > 0 && (
