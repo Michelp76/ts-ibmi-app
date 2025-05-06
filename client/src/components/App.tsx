@@ -61,7 +61,8 @@ const App = () => {
         if (operationType === OperationType.DESCOBJET) {
           // RAZ states
           if (stringToSearch === '') {
-            // Réinit terme de recherche, sauf si issu de la recherche "globale" Progs cf. setStringToSearch()
+            // Réinit terme de recherche,
+            // sauf si issu de la recherche "globale" Progs cf. setStringToSearch()
             setSearchTerm('')
           }
           setSearchTermMemo('')
@@ -70,11 +71,17 @@ const App = () => {
           setSearchResults([])
           setProgError('')
           setLineError('')
+
+          // Force purge de l'état : utile ?
+          setLogsAS400([])
+
           // Affiche le code dans l'éditeur Prism
           setLogsAS400(data.result)
 
           // Soumet une recherche auto, si issu de la recherche "globale" Progs cf. setStringToSearch()
-          handleSearch(null)
+          if (stringToSearch !== '') {
+            handleSearch(null)
+          }
         } else if (operationType === OperationType.SEARCHPROGS) {
           setSrcSearchResults(data.result)
         } else if (operationType === OperationType.SEARCHJOBLOG) {
@@ -117,8 +124,8 @@ const App = () => {
       )
 
       // mark.js
-      var context = document.querySelector('.codeDsp')
-      var instance = new Mark(context)
+      let context = document.querySelector('.codeDsp')
+      let instance = new Mark(context)
       setTimeout(() => {
         instance.mark(searchTerm)
       }, 100)
@@ -132,6 +139,11 @@ const App = () => {
   ): string => {
     // console.log(progError)
     // console.log(lineError)
+
+    // mark.js -- retire toutes les "surbrillances"
+    let context = document.querySelector('.codeDsp')
+    let instance = new Mark(context)
+    instance.unmark()
 
     let concatStr: string = ''
     if (logsAS400.length > 0) {
@@ -351,14 +363,14 @@ const App = () => {
                       id="default-search"
                       value={searchTerm}
                       onChange={handleChange}
-                      className="block w-full p-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-md bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                      className="block w-80 p-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-md bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                       placeholder="Recherche..."
                       required
                     />
                     <button
                       id="searchBtn"
                       type="submit"
-                      className="text-white absolute end-2.5 bottom-2.5 bg-[#5e81ac] hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-md text-sm px-4 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                      className="text-white absolute end-2.5 bottom-2.5 bg-[#5e81ac] hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-md text-sm px-4 mr-6 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                     >
                       Search
                     </button>

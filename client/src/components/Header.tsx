@@ -136,6 +136,7 @@ const SearchBox = ({
           inputFontSize="14px"
           autoFocus
         />
+        {/* Combo environnements */}
         <SplitButtonDropdown
           buttonLabel="Bibliothèque"
           items={environments}
