@@ -110,7 +110,7 @@ const SearchBox = ({
     //
     <nav className="fixed top-0 left-0 w-full bg-[#2E3440] py-3 z-50 h-[4rem] drop-shadow-md">
       {/* 930px en dur, c'est moche.. */}
-      <div className="relative container mx-auto w-[66rem] grid grid-cols-[1fr,11.0rem,11.0rem] gap-x-4">
+      <div className="relative container mx-auto w-[66rem] grid grid-cols-[41.2rem,11.0rem,11.0rem] gap-x-4">
         <ReactSearchBox
           placeholder="Rechercher..."
           data={objectsAS400}

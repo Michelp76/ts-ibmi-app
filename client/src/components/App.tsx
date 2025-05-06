@@ -15,7 +15,7 @@ const override: CSSProperties = {
   justifyContent: 'center',
   position: 'absolute',
   top: '26px',
-  right: '840px',
+  right: '856px',
   zIndex: '99'
 }
 
@@ -228,6 +228,9 @@ const App = () => {
   const handleSearch = async (event: any) => {
     if (event != undefined) event.preventDefault()
 
+    // react-spinners
+    setLoading(true)
+
     let searchLocal: number[] = []
     if (searchTerm !== searchTermMemo) {
       // Mémo recherche
@@ -266,6 +269,9 @@ const App = () => {
     setSearchResults(searchLocal) // tableau de résultat(s) de recherche
     setSearchCount(searchIdxLocal) // Index actuel dans le tableau de résultat(s) de recherche
     setSearchLine(lineIndex) // N° de ligne où se trouve le/un des résultat(s) de recherche
+
+    // react-spinners
+    setLoading(false)
   }
 
   const resetScroll = () => {
@@ -379,10 +385,8 @@ const App = () => {
                     </button>
                   </div>
                 </form>
-              {/* Résultats de recherche (cf. fonction 'searchProgs') */}
-              {modeRecherche === searchType.SEARCHSOURCE && (
-                 srcSearchList()
-              )}
+                {/* Résultats de recherche (cf. fonction 'searchProgs') */}
+                {modeRecherche === searchType.SEARCHSOURCE && srcSearchList()}
               </div>
               {/* pavé code / dump */}
               {logsAS400 && logsAS400.length > 0 && (
