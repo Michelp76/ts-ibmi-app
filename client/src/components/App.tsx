@@ -36,6 +36,7 @@ const App = () => {
   const [logsAS400, setLogsAS400] = useState([])
   const [srcSearchResults, setSrcSearchResults] = useState([])
   let [loading, setLoading] = useState(false)
+  let [searchFinished, setSearchFinished] = useState(false)
 
   // 'js-worker-search' instance
   const searchApi = new SearchApi()
@@ -45,6 +46,10 @@ const App = () => {
 
     // react-spinners
     setLoading(true)
+
+    if (stringToSearch === '') {
+      setSearchFinished(false)
+    }
 
     fetch(`/api/${operationType}/${objToInspect}/${targetEnv}`, {
       method: 'GET',
@@ -98,6 +103,7 @@ const App = () => {
       .finally(() => {
         // Loader
         setLoading(false)
+        setSearchFinished(true)
       })
   }, [objToInspect])
 
@@ -322,6 +328,8 @@ const App = () => {
         setTargetEnv={setTargetEnv}
         modeRecherche={modeRecherche}
         setModeRecherche={setModeRecherche}
+        searchFinished={searchFinished}
+        setSearchFinished={setSearchFinished}
       />
       <BeatLoader
         color={'#000000'}
@@ -331,7 +339,7 @@ const App = () => {
         aria-label="Loading Spinner"
         data-testid="loader"
       />
-      {objToInspect !== '' && (
+      {objToInspect !== '' && searchFinished && (
         <>
           {/* Grille à 2/3 colonnes :
           https://stackoverflow.com/questions/72380072/specifying-grid-column-row-size-in-tailwindcss */}
@@ -387,7 +395,7 @@ const App = () => {
                 </div>
               </form>
               {/* Résultats de recherche (cf. fonction 'searchProgs') */}
-              {modeRecherche === searchType.SEARCHSOURCE && srcSearchList()}
+              {srcSearchList()}
             </div>
             {/* pavé code / dump */}
             {logsAS400 && logsAS400.length > 0 && (

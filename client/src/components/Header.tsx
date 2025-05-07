@@ -15,7 +15,9 @@ const SearchBox = ({
   targetEnv,
   setTargetEnv,
   modeRecherche,
-  setModeRecherche
+  setModeRecherche,
+  searchFinished,
+  setSearchFinished
 }: {
   operationType: string
   setOperationType: (arg: string) => void
@@ -29,6 +31,8 @@ const SearchBox = ({
   setTargetEnv: (arg: string) => void
   modeRecherche: string
   setModeRecherche: (arg: string) => void
+  searchFinished: boolean
+  setSearchFinished: (arg: boolean) => void
 }) => {
   const [environments, setEnvironments] = useState([])
   const [objectsAS400, setObjectsAS400] = useState([])
@@ -136,6 +140,8 @@ const SearchBox = ({
                   setObjToInspect(value)
                   setStringToSearch(value) // Affiche la chaine de recherche en cours au dessus des résultats (de recherche)
                   setSearchTerm(value)
+
+                  setSearchFinished(false)
                 }
               } else if (value.length >= 22) {
                 // ie --> 597142/DEVPAIE/TRTMENS
