@@ -16,6 +16,8 @@ const SearchBox = ({
   setTargetEnv,
   modeRecherche,
   setModeRecherche,
+  showLineNumber,
+  setShowLineNumber,
   searchFinished,
   setSearchFinished
 }: {
@@ -31,6 +33,8 @@ const SearchBox = ({
   setTargetEnv: (arg: string) => void
   modeRecherche: string
   setModeRecherche: (arg: string) => void
+  showLineNumber: string
+  setShowLineNumber: (arg: string) => void
   searchFinished: boolean
   setSearchFinished: (arg: boolean) => void
 }) => {
@@ -114,7 +118,7 @@ const SearchBox = ({
     //
     <nav className="fixed top-0 left-0 w-full bg-[#2E3440] py-3 z-50 h-[4rem] drop-shadow-md">
       {/* 930px en dur, c'est moche.. */}
-      <div className="relative container mx-auto w-[66rem] grid grid-cols-[41.2rem,10.4rem,11.0rem] gap-x-4">
+      <div className="relative container mx-auto w-[66rem] grid grid-cols-[41.2rem,10.4rem,11.9rem,11.0rem] gap-x-4">
         <ReactSearchBox
           placeholder="Rechercher..."
           data={objectsAS400}
@@ -177,6 +181,20 @@ const SearchBox = ({
           ]}
           currentState={modeRecherche}
           setCurrentState={setModeRecherche}
+        />
+        {/* Recherche par nom de programme ou recherche dans le source de(s) programmes */}
+        <SplitButtonDropdown
+          buttonLabel={showLineNumber}
+          items={[
+            {
+              title: 'show-line-number'
+            },
+            {
+              title: 'hide-line-number'
+            }
+          ]}
+          currentState={showLineNumber}
+          setCurrentState={setShowLineNumber}
         />
       </div>
     </nav>

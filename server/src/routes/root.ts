@@ -14,7 +14,7 @@ function createAlias(rqEnv: string, schema: string, rqObject: string): string {
 
 // Afficher le contenu du membre 'aliasé'
 function selectAlias(rqObject: string): string {
-  return `SELECT SRCSEQ, SRCDTA AS "data" FROM QTEMP.${rqObject}`;
+  return `SELECT REPLACE(SRCSEQ, '.', '') AS "numLine", SRCDTA AS "data" FROM QTEMP.${rqObject}`;
 }
 
 // Suppression nécessaire (idéalement)

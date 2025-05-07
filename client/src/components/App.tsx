@@ -25,6 +25,7 @@ const App = () => {
   const [stringToSearch, setStringToSearch] = useState('')
   const [targetEnv, setTargetEnv] = useState('NETPAISRC')
   const [modeRecherche, setModeRecherche] = useState('auto-complete')
+  const [showLineNumber, setShowLineNumber] = useState('hide-line-number')
   const [searchTerm, setSearchTerm] = useState('')
   const [searchTermMemo, setSearchTermMemo] = useState('')
   const [searchCount, setSearchCount] = useState(-1)
@@ -159,6 +160,7 @@ const App = () => {
     let concatStr: string = ''
     if (logsAS400.length > 0) {
       logsAS400.map((log, index) => {
+        let numLine: string = log['numLine'] as string
         let codeLine: string = log['data'] as string
 
         if (searchTerm != '') {
@@ -166,10 +168,12 @@ const App = () => {
           // Index as many objects as you want.
           // Objects are identified by an id (the first parameter).
           // Each Object can be indexed multiple times (once per string of related text).
-          searchApi.indexDocument(index, codeLine)
+          searchApi.indexDocument(index, numLine + codeLine)
         }
         // Concat pour affichage du source
-        concatStr += `${codeLine}\n`
+        concatStr += `${
+          showLineNumber === 'show-line-number' ? numLine : ''
+        }   ${codeLine}\n`
       })
     }
     return concatStr
@@ -205,17 +209,19 @@ const App = () => {
     )
     return (
       <>
-        <div className="text-white text-sm italic w-md p-2 mb-[6px] !mt-[10px]">
-          {srcSearchResults.length > 0 ? (
-            <strong>
-              Résultats recherche "{stringToSearch}" dans "{targetEnv}"
-            </strong>
-          ) : (
-            <strong>
-              Aucun résultat pour "{stringToSearch}" dans "{targetEnv}"
-            </strong>
-          )}
-        </div>
+        {modeRecherche === searchType.SEARCHSOURCE && stringToSearch !== '' && (
+          <div className="text-white text-sm italic w-md p-2 mb-[6px] !mt-[10px]">
+            {srcSearchResults.length > 0 ? (
+              <strong>
+                Résultats recherche "{stringToSearch}" dans "{targetEnv}"
+              </strong>
+            ) : (
+              <strong>
+                Aucun résultat pour "{stringToSearch}" dans "{targetEnv}"
+              </strong>
+            )}
+          </div>
+        )}
         <div
           id="searchResults"
           className="h-[73svh] overflow-y-auto block w-sm max-w-sm text-sm text-gray-900 rounded-md bg-[#2E3440] text-white py-2"
@@ -328,6 +334,8 @@ const App = () => {
         setTargetEnv={setTargetEnv}
         modeRecherche={modeRecherche}
         setModeRecherche={setModeRecherche}
+        showLineNumber={showLineNumber}
+        setShowLineNumber={setShowLineNumber}
         searchFinished={searchFinished}
         setSearchFinished={setSearchFinished}
       />
