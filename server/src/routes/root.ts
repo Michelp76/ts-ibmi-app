@@ -196,12 +196,8 @@ root.get("/searchProgsAndTables/:searchstring/:env?", async (req, res) => {
 
   if (resultProgs != undefined) {
     const result = [...resultTables as any[], ...resultProgs as any[]];
-    if (result.length > 0) {
-      // --
-      res.json({ length: result.length, result, });
-    } else {
-      res.status(404).json({ error: "pas d'objets trouvé(s)" });
-    }
+    // --
+    res.json({ length: result.length, result, });
   }
 });
 
