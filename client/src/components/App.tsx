@@ -417,7 +417,7 @@ const App = () => {
                   language={
                     operationType === OperationType.SEARCHJOBLOG
                       ? 'text'
-                      : 'abap'
+                      : 'apex'
                   }
                   className="codeDsp"
                   // showLineNumbers={true}
