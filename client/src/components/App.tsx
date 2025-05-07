@@ -208,7 +208,7 @@ const App = () => {
         <div className="text-white text-sm italic w-md p-2 mb-[6px] !mt-[10px]">
           {srcSearchResults.length > 0 ? (
             <strong>
-              Résultats de recherche pour "{stringToSearch}" dans "{targetEnv}"
+              Résultats recherche "{stringToSearch}" dans "{targetEnv}"
             </strong>
           ) : (
             <strong>
