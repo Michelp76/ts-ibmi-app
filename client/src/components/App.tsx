@@ -15,7 +15,7 @@ const override: CSSProperties = {
   justifyContent: 'center',
   position: 'absolute',
   top: '26px',
-  right: '856px',
+  right: '1060px',
   zIndex: '99'
 }
 
