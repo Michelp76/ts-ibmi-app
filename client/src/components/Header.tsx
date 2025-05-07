@@ -153,7 +153,7 @@ const SearchBox = ({
         />
         {/* Combo environnements */}
         <SplitButtonDropdown
-          buttonLabel="Bibliothèque"
+          buttonLabel={targetEnv}
           items={environments}
           currentState={targetEnv}
           setCurrentState={setTargetEnv}
