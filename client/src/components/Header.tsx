@@ -65,21 +65,23 @@ const SearchBox = ({
   }
 
   const listObjectsAS400 = (destEnv: string): any => {
-    fetch(`/api/listObjectsAS400/${destEnv}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    })
-      .then((res) => {
-        return res.json()
-      })
-      .then((data) => {
-        if (data && data.combinedArray.length > 0) {
-          console.log(data.combinedArray)
-          setObjectsAS400(data.combinedArray)
+    if (modeRecherche === searchType.AUTOCOMPLETE) {
+      fetch(`/api/listObjectsAS400/${destEnv}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
         }
       })
+        .then((res) => {
+          return res.json()
+        })
+        .then((data) => {
+          if (data && data.combinedArray.length > 0) {
+            console.log(data.combinedArray)
+            setObjectsAS400(data.combinedArray)
+          }
+        })
+    }
   }
 
   useEffect(() => {
