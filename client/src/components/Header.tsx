@@ -88,7 +88,7 @@ const SearchBox = ({
     // Liste de bibliothèques
     listEnvironments()
     // Autocomplete pour liste de progs/tables
-    listObjectsAS400('NETPAISRC')
+    listObjectsAS400(import.meta.env.VITE_DEFAULTBIB)
     //console.log('test', objectsAS400)
   }, [])
 

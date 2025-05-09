@@ -23,7 +23,7 @@ const App = () => {
   // LOCAL STATES
   const [objToInspect, setObjToInspect] = useState('')
   const [stringToSearch, setStringToSearch] = useState('')
-  const [targetEnv, setTargetEnv] = useState('NETPAISRC')
+  const [targetEnv, setTargetEnv] = useState(import.meta.env.VITE_DEFAULTBIB)
   const [modeRecherche, setModeRecherche] = useState('auto-complete')
   const [showLineNumber, setShowLineNumber] = useState('hide-line-number')
   const [searchTerm, setSearchTerm] = useState('')
