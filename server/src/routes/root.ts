@@ -25,7 +25,7 @@ function dropAlias(rqObject: string): string {
 // Recherche à quelle table appartient la colonne (reqZone) demandée
 function searchSysColumn(pEnv: string, rqZone: string): string {
   return `SELECT TABLE_NAME srcFile FROM QSYS2.SYSCOLUMNS \
-          WHERE TABLE_OWNER = 'GRDEVSPAF' \
+          WHERE TABLE_OWNER = '${process.env.DB_TABLE_OWNER}' \
           AND TABLE_SCHEMA = '${pEnv !== '' ? pEnv : process.env.DB_DBQ}' \
           AND COLUMN_NAME = '${rqZone}'`;
 }
