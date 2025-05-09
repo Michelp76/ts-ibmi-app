@@ -1,5 +1,5 @@
 # Purpose
-IBM explorer : searches dds, sql, rpgle programs sources, QEZDEBUG dumps...  
+IBM explorer : searches dds, sql, cl, rpgle programs sources, qezdebug dumps...  
 And displays them in a nice syntax highlighter ([react-syntax-highlighter](https://github.com/react-syntax-highlighter "react-syntax-highlighter"))
 
 ![image](https://github.com/user-attachments/assets/ef1059c9-8cca-434c-9c11-2732549e656e)
