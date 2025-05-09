@@ -56,7 +56,7 @@ function listProgs(pEnv: string): string {
   AND SYSTEM_TABLE_NAME IN ('QRPGLESRC', 'QCLPSRC', 'QRPGINCLU')`
 }
 
-// liste sous-systèmes (NETPAISRC, DEVFLX...)
+// liste sous-systèmes
 function listLibraries(): string {
   return `SELECT DISTINCT(TABLE_SCHEMA) AS "title" 
           FROM QSYS2.SYSPARTITIONSTAT          
@@ -134,7 +134,7 @@ root.get("/descObject/:table/:env", async (req, res) => {
   }
 });
 
-// Sous-systèmes (NETPAISRC, DEVFLX...)
+// Sous-systèmes
 root.get("/listLibraries/", async (req, res) => {
   const result = await db.query(listLibraries());
   if (result && result.length > 0) {
