@@ -122,7 +122,7 @@ const SearchBox = ({
       {/* 930px en dur, c'est moche.. */}
       <div className="relative container mx-auto w-[66rem] grid grid-cols-[28.0rem,10.4rem,11.9rem,11.0rem] gap-x-4">
         <ReactSearchBox
-          placeholder="Rechercher..."
+          placeholder="Search..."
           data={objectsAS400}
           onSelect={(record: any) => {
             console.log(record)
