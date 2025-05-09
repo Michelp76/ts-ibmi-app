@@ -1,8 +1,7 @@
 IBM explorer : searches dds, sql, rpgle programs sources, QEZDEBUG dumps...  
 And displays them in a nice syntax highlighter ([react-syntax-highlighter](https://github.com/react-syntax-highlighter "react-syntax-highlighter"))
 
-![image](https://github.com/user-attachments/assets/68a26159-c1f1-49b5-937d-e02e00383360)
-
+![image](https://github.com/user-attachments/assets/b556379a-5424-43cf-a1c2-fbe5df9ac6d8)
 
 Uses [node-odbc](https://github.com/IBM/node-odbc "node-odbc") for the backend and Vite / ReactJs / Tailwind for the web goodies
 Internal search engine powered by [js-worker-search](https://github.com/bvaughn/js-worker-search "js-worker-search")
