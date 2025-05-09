@@ -119,7 +119,7 @@ const SearchBox = ({
     // https://github.com/ghoshnirmalya/react-search-box/issues/106
     //
     <nav className="fixed top-0 left-0 w-full bg-[#2E3440] py-3 z-50 h-[4rem] drop-shadow-md">
-      {/* 930px en dur, c'est moche.. */}
+      {/* Ici on définit le nombre de colonnes dans le Header --> grid-cols-[28.0rem,10.4rem,11.9rem,11.0rem] <-- 4 colonnes ici */}
       <div className="relative container mx-auto w-[66rem] grid grid-cols-[28.0rem,10.4rem,11.9rem,11.0rem] gap-x-4">
         <ReactSearchBox
           placeholder="Search..."
