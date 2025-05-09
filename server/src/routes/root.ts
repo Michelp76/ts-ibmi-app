@@ -53,7 +53,7 @@ function listTables(pEnv: string): string {
 function listProgs(pEnv: string): string {
   return `SELECT SYSTEM_TABLE_MEMBER AS "key", TRIM(SYSTEM_TABLE_MEMBER) AS "value" FROM QSYS2.SYSPARTITIONSTAT WHERE
   SYSTEM_TABLE_SCHEMA = '${pEnv !== '' ? pEnv : process.env.DB_SRC}' 
-  AND SYSTEM_TABLE_NAME IN ('QRPGLESRC', 'QCLPSRC', 'QRPGINCLU')`
+  AND SYSTEM_TABLE_NAME IN ( ${process.env.DB_FOLDERS} )`
 }
 
 // liste sous-systèmes
@@ -70,7 +70,7 @@ function listSearchProgs(pEnv: string, pSearchString: string): string {
                             Trim(system_table_name) concat '(' concat
                             Trim(system_table_member) concat ')' as ClobMbr
                   from QSYS2.syspartitionstat a
-                  Where SYSTEM_TABLE_NAME IN ('QRPGLESRC', 'QCLPSRC', 'QRPGINCLU')
+                  Where SYSTEM_TABLE_NAME IN ( ${process.env.DB_FOLDERS} )
                   and system_table_Schema = '${pEnv !== '' ? pEnv : process.env.DB_SRC}')
                   Select srcFile
                   from a
