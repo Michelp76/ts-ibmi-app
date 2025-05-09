@@ -150,7 +150,7 @@ export const SplitButtonDropdown = ({
             role="menu"
             id="dropdown-menu"
             aria-labelledby="dropdown-button"
-            className="h-auto shadow-md rounded-md p-1 border bg-white overflow-y-scroll max-h-screen"
+            className="h-auto shadow-md rounded-md p-1 border bg-white overflow-y-auto max-h-screen"
           >
             {items.map((item, index) => (
               <li
