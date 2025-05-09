@@ -1,7 +1,9 @@
+# Purpose
 IBM explorer : searches dds, sql, rpgle programs sources, QEZDEBUG dumps...  
 And displays them in a nice syntax highlighter ([react-syntax-highlighter](https://github.com/react-syntax-highlighter "react-syntax-highlighter"))
 
-![image](https://github.com/user-attachments/assets/b556379a-5424-43cf-a1c2-fbe5df9ac6d8)
+![image](https://github.com/user-attachments/assets/ef1059c9-8cca-434c-9c11-2732549e656e)
+
 
 Uses [node-odbc](https://github.com/IBM/node-odbc "node-odbc") for the backend and Vite / ReactJs / Tailwind for the web goodies
 Internal search engine powered by [js-worker-search](https://github.com/bvaughn/js-worker-search "js-worker-search")
@@ -21,3 +23,19 @@ DB_SWP_SRC_FILE=1 # could be very specific but useful at our shop : swap the giv
 ```
 
 I haven't been able to test it against other IBMi systems (pub400.com was offline at the time) so hopefully it should work for you with as little modifications as possible
+
+# How to launch
+
+Backend :
+
+```shell
+cd .\server\
+npm start
+```
+
+Frontend :
+
+```shell
+cd .\client\
+pnpm run dev
+```
