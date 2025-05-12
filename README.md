@@ -1,14 +1,14 @@
 # Purpose
-IBM explorer : searches dds, sql, rpgle programs sources, QEZDEBUG dumps...  
+IBM sources and joblogs explorer : searches dds, sql, cl, rpgle programs sources, qezdebug dumps...  
 And displays them in a nice syntax highlighter ([react-syntax-highlighter](https://github.com/react-syntax-highlighter "react-syntax-highlighter"))
 
 ![image](https://github.com/user-attachments/assets/ef1059c9-8cca-434c-9c11-2732549e656e)
 
 
-Uses [node-odbc](https://github.com/IBM/node-odbc "node-odbc") for the backend and Vite / ReactJs / Tailwind for the web goodies  
+Uses Typescript and [node-odbc](https://github.com/IBM/node-odbc "node-odbc") for the backend and Vite / ReactJs / Tailwind for the web goodies  
 Internal search engine powered by [js-worker-search](https://github.com/bvaughn/js-worker-search "js-worker-search")
 
-Be sure to check the provided .env.example :
+Be sure to check the provided `.env.example` :
 
 ```sql
 PORT=3000
