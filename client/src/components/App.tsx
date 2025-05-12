@@ -163,7 +163,7 @@ const App = () => {
         let numLine: string = log['numLine'] as string
         let codeLine: string = log['data'] as string
 
-        if (searchTerm != '') {
+        if (searchTerm != '' && searchTerm !== searchTermMemo) {
           // Indexing
           // Index as many objects as you want.
           // Objects are identified by an id (the first parameter).
