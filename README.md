@@ -39,3 +39,5 @@ Frontend :
 cd .\client\
 pnpm run dev
 ```
+
+Finally you can connect on http://localhost:5173/
